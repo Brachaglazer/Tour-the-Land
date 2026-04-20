@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reviews - Explore the Land</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<nav class="navbar" aria-label="Main navigation">
+  <h2 class="logo">Explore the Land</h2>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="reviews.html">Reviews</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>Site Reviews</h1>
+  <p class="intro">Share your experience or read what other travelers have said about our tours.</p>
+
+  <section id="reviews-section">
+    <h2>All Reviews</h2>
+    <div id="reviewsList"></div>
+  </section>
+
+  <section id="review-form" aria-labelledby="review-form-heading">
+    <h2 id="review-form-heading">Leave a Review</h2>
+
+    <label for="reviewName">Name</label>
+    <input type="text" id="reviewName" placeholder="Your name">
+
+    <label for="reviewText">Review</label>
+    <textarea id="reviewText" placeholder="Your review"></textarea>
+
+    <button onclick="addReview()">Submit Review</button>
+    <div id="review-feedback" class="response-message" aria-live="polite"></div>
+  </section>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
