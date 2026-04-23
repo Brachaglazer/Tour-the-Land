@@ -6,7 +6,7 @@ function sendFooterContact() {
         message: document.getElementById("footerMessage").value
     };
 
-    fetch("http://localhost:3000/contact", {
+    fetch("http://localhost:3000/contacts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(contact)
@@ -31,7 +31,7 @@ function sendContact() {
         return;
     }
 
-    fetch("http://localhost:3000/contact", {
+    fetch("http://localhost:3000/contacts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(contact)
@@ -73,7 +73,7 @@ function addReview() {
         date: new Date().toLocaleDateString()
     };
 
-    fetch("http://localhost:3000/addData", {
+    fetch("http://localhost:3000/reviews/addReview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(review)
@@ -100,7 +100,7 @@ function renderReviews() {
     const reviewsList = document.getElementById("reviewsList");
     if (!reviewsList) return;
 
-    fetch("http://localhost:3000/getData")
+    fetch("http://localhost:3000/reviews/")
     .then(res => res.json())
     .then(reviews => {
         if (!reviews.length) {
