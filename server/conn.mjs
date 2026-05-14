@@ -12,6 +12,6 @@ try {
   console.error(e);
 }
 
-let db = conn.db("Tour_the_Land");
+let db = client.db("Tour_the_Land");
 
 export default db;

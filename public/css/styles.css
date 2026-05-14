@@ -76,7 +76,7 @@ nav a:hover {
 }
 
 /* CONTACT FORM */
-#contact-form {
+.form {
     max-width: 600px;
     margin: 2rem auto;
     padding: 2.5rem 2rem;
@@ -88,15 +88,15 @@ nav a:hover {
     animation: fadeIn 0.8s ease;
 }
 
-#contact-form label {
+.form label {
     font-weight: 500;
     color: var(--primary);
     display: block;
     margin-bottom: 0.3rem;
 }
 
-#contact-form input,
-#contact-form textarea {
+.form input,
+.form textarea {
     width: 100%;
     padding: 0.7rem 0.9rem;
     border-radius: 10px;
@@ -107,23 +107,23 @@ nav a:hover {
     background: var(--white);
 }
 
-#contact-form input:focus,
-#contact-form textarea:focus {
+.form input:focus,
+.form textarea:focus {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(204, 227, 222, 0.3);
 }
 
-#contact-form input {
+.form input {
     margin-bottom: 1rem;
 }
 
-#contact-form textarea {
+.form textarea {
     resize: vertical;
     margin-bottom: 1.5rem;
 }
 
-#contact-form button {
+.form button {
     background: var(--accent);
     color: var(--primary);
     border: none;
@@ -136,7 +136,7 @@ nav a:hover {
     margin: 0 auto;
 }
 
-#contact-form button:hover {
+.form button:hover {
     background: var(--accent-2);
     transform: translateY(-2px);
 }

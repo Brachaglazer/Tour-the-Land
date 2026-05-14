@@ -1,5 +1,6 @@
 import express from "express";
 import db from "../conn.mjs";
+import authenticate from "../authentication.mjs"
 
 /*
 Trips Routes:
