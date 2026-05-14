@@ -15,7 +15,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/contact", contactsRoutes);
+app.use("/contacts", contactsRoutes);
 app.use("/itinerary", itineraryRoutes);
 app.use("/reviews", reviewsRoutes);
 app.use("/trips", tripsRoutes);

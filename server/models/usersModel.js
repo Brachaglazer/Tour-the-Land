@@ -11,7 +11,7 @@ created_at: date
 const { MongoClient } = require("mongodb");
 
 async function run() {
-const uri = "mongodb+srv://tourtheland43_db_user:JUICPnGBsXHzNozW@cluster0.gmd21v4.mongodb.net/?appName=Cluster0&ssl=true";
+const uri = "mongodb+srv://tourtheland43_db_user:tourtheland@cluster0.gmd21v4.mongodb.net/?appName=Cluster0&ssl=true";
 
   const client = new MongoClient(uri);
 

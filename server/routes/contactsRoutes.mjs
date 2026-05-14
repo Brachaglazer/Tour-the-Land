@@ -1,6 +1,6 @@
 import express from "express";
 import nodemailer from "nodemailer";
-import db from "./conn.mjs";
+import db from "../conn.mjs";
 
 /*
 Contact Routes:
@@ -17,7 +17,7 @@ router.post('/', async (req, res) => {
         service: 'Gmail',
         auth: {
             user: 'tourtheland43@gmail.com',
-            pass: 'fzct whbp evhh oycs'
+            pass: 'pidi qmod nvxh rykr'
         }
     });
 

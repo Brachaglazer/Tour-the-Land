@@ -1,6 +1,6 @@
 import { MongoClient } from "mongodb";
 
-const uri = "mongodb+srv://tourtheland43_db_user:JUICPnGBsXHzNozW@cluster0.gmd21v4.mongodb.net/?appName=Cluster0&ssl=true";
+const uri = "mongodb+srv://tourtheland43_db_user:tourtheland@cluster0.gmd21v4.mongodb.net/?appName=Cluster0&ssl=true";
 const connectionString = process.env.ATLAS_URI || uri;
 
 const client = new MongoClient(connectionString);

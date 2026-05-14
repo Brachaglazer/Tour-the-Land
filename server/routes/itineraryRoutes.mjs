@@ -1,5 +1,5 @@
 import express from "express";
-import db from "./conn.mjs";
+import db from "../conn.mjs";
 
 /*
 Itinerary Routes:
