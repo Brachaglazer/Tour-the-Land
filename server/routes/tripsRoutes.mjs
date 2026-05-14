@@ -1,6 +1,6 @@
 import express from "express";
 import db from "../conn.mjs";
-import authenticate from "../authentication.mjs"
+import jwt from 'jsonwebtoken';
 
 /*
 Trips Routes:
@@ -12,7 +12,20 @@ Trips Routes:
 
 const router = express.Router();
 
-router.get("/:id", async (req, res) => {
+async function authenticate(req, res, next) {
+    const token = req?.headers?.authorization?.split(' ')[1];
+    if (!token) return res?.status(401).json({ message: 'No token provided.' });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        return res.status(403).json({ message: 'Failed to authenticate token.' });
+    }
+}
+
+router.get("/:id", authenticate, async (req, res) => {
     let collection = await db.collection("trips");
     let query = { user_id: ObjectId(req.params.id) };
     let results = await collection.find({ query })
@@ -21,7 +34,7 @@ router.get("/:id", async (req, res) => {
     else res.send(results).status(200);
 });
 
-router.post('/addTrip', async (req, res) => {
+router.post('/addTrip', authenticate, async (req, res) => {
     // create trip entry
     let collection = await db.collection("trips");
     let newTrip = req.body;
@@ -41,7 +54,7 @@ router.post('/addTrip', async (req, res) => {
     res.json({ message: 'Trip added successfully', tripId: result._id, tripUserId: tripUserResult._id})
 });
 
-router.patch('/updateTrip/:id', async (req, res) => {
+router.patch('/updateTrip/:id', authenticate, async (req, res) => {
     let collection = await db.collection("trips");
     let updateTrip = req.body;
     let query = { _id: ObjectId(req.params.id) };
@@ -50,7 +63,7 @@ router.patch('/updateTrip/:id', async (req, res) => {
     res.json({ message: 'Trip updated successfully' })
 });
 
-router.delete("/deleteTrip/:id", async (req, res) => {
+router.delete("/deleteTrip/:id", authenticate, async (req, res) => {
   const collection = db.collection("trips");
   const query = { _id: ObjectId(req.params.id) };
   let result = await collection.deleteOne(query);

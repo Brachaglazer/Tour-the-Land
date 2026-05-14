@@ -1,20 +1,7 @@
 import express from "express";
 import db from "../conn.mjs";
-//import authenticate from "../authentication.mjs"
 import jwt from 'jsonwebtoken';
 
-async function authenticate(req, res, next) {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ message: 'No token provided.' });
-
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        next();
-    } catch (error) {
-        return res.status(403).json({ message: 'Failed to authenticate token.' });
-    }
-}
 /*
 Itinerary Routes:
 /:id : GET all itinerary by tripId
@@ -25,7 +12,20 @@ Itinerary Routes:
 
 const router = express.Router();
 
-router.get("/:id", async (req, res) => {
+async function authenticate(req, res, next) {
+    const token = req?.headers?.authorization?.split(' ')[1];
+    if (!token) return res?.status(401).json({ message: 'No token provided.' });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        return res.status(403).json({ message: 'Failed to authenticate token.' });
+    }
+}
+
+router.get("/:id", authenticate, async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) return res.status(401).json({ message: 'No token provided.' });
 
@@ -43,7 +43,7 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-router.post('/addItinerary', async (req, res) => {
+router.post('/addItinerary', authenticate, async (req, res) => {
     let collection = await db.collection("itinerary");
     let newItinerary = req.body;
     newItinerary.created_at = new Date().toLocaleDateString();
@@ -51,7 +51,7 @@ router.post('/addItinerary', async (req, res) => {
     res.json({ message: 'Itinerary added successfully', itineraryId: result._id})
 });
 
-router.patch('/updateItinerary/:id', async (req, res) => {
+router.patch('/updateItinerary/:id', authenticate, async (req, res) => {
     let collection = await db.collection("itinerary");
     let updateItinerary = req.body;
     let query = { _id: ObjectId(req.params.id) };
@@ -59,7 +59,7 @@ router.patch('/updateItinerary/:id', async (req, res) => {
     res.json({ message: 'Itinerary updated successfully' })
 });
 
-router.delete("/deleteItinerary/:id", async (req, res) => {
+router.delete("/deleteItinerary/:id", authenticate, async (req, res) => {
   const collection = db.collection("itinerary");
   const query = { _id: ObjectId(req.params.id) };
   let result = await collection.deleteOne(query);
