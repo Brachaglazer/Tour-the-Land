@@ -172,9 +172,14 @@ function addReview() {
         date: new Date().toLocaleDateString()
     };
 
+    if (!localStorage.getItem('jwtToken')) return;
+
     fetch("http://localhost:3000/reviews/addReview", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + localStorage.getItem('jwtToken'),
+        },
         body: JSON.stringify(review)
     })
     .then(res => res.json())
@@ -198,8 +203,13 @@ function addReview() {
 function renderReviews() {
     const reviewsList = document.getElementById("reviewsList");
     if (!reviewsList) return;
+    if (!localStorage.getItem('jwtToken')) return;
 
-    fetch("http://localhost:3000/reviews/")
+    fetch("http://localhost:3000/reviews/", {
+        headers: { 
+            'Authorization': 'Bearer ' + localStorage.getItem('jwtToken'),
+        }
+    })
     .then(res => res.json())
     .then(reviews => {
         if (!reviews.length) {
