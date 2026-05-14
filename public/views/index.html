@@ -4,6 +4,24 @@
     <title>Explore the Land</title>
     <link rel="stylesheet" href="../css/styles.css">
     <meta charset="UTF-8">
+
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/responsiveslides.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="js/responsiveslides.min.js"></script>
+    <script>
+      $(function() {
+        $(".rslides").responsiveSlides({
+          auto: true,
+          pager: true,
+          nav: true,
+          speed: 700,
+          timeout: 4000,
+          maxwidth: 800,
+          namespace: "rslides"
+        });
+      });
+    </script>
 </head>
 <body>
 
@@ -17,11 +35,21 @@
   </div>
 </nav>
 
-<div class="container">
-  <h1>Explore the Land</h1>
-  <h2>See Eretz Yisroel Like Never Before!</h2>
-  <a class="btn btn-center" href="reviews.html">Read Reviews</a>
+
+<div class="page">
+
+  <ul class="rslides">
+      <li><img src="/images/slide1.jpg" alt="Review Slide"></li>
+      <li><img src="/images/slide2.jpg" alt="Try Us Slide"></li>
+      <li><img src="/images/slide3.jpg" alt="Message Slide"></li>
+  </ul>
+
+    <h1>Explore the Land</h1>
+    <h2>See Eretz Yisroel Like Never Before!</h2>
+    <a class="btn btn-center" href="reviews.html">Read Reviews</a>
 </div>
+
+
 
 <footer>
   <a href="contact.html">Contact Us</a>
