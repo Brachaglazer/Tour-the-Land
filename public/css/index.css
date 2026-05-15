@@ -1,4 +1,8 @@
-/*SLIDESHOW STYLES*/
+
+.spacer{
+    height: 45px; 
+}
+
 .rslides {
     position: relative;
     list-style: none;

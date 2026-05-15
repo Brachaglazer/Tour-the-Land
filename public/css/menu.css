@@ -27,9 +27,6 @@ nav a:hover {
     color: var(--accent);
 }
 
-/* =========================================================
-   DESKTOP
-========================================================= */
 
 @media (min-width: 801px) {
 
@@ -86,13 +83,9 @@ nav a:hover {
     }
 }
 
-/* =========================================================
-   MOBILE
-========================================================= */
 
 @media (max-width: 800px) {
 
-    /* Hide desktop menu */
     #navigation ul.menu,
     #navigation .logo {
         display: none !important;
@@ -104,10 +97,6 @@ nav a:hover {
         align-items: flex-start !important;
         overflow: visible !important;
     }
-
-    /* =========================
-       MeanMenu Bar
-    ========================= */
 
     .mean-container .mean-bar {
         display: flex !important;
@@ -131,9 +120,6 @@ nav a:hover {
         z-index: 9999 !important;
     }
 
-    /* =========================
-       Hamburger Button
-    ========================= */
 
     .mean-container a.meanmenu-reveal {
         display: inline-flex !important;
@@ -163,9 +149,6 @@ nav a:hover {
         display: none !important;
     }
 
-    /* =========================
-       Dropdown Menu
-    ========================= */
 
     .mean-container .mean-nav {
         display: block !important;
@@ -181,7 +164,7 @@ nav a:hover {
 
         border-radius: 20px !important;
 
-        background: rgba(253, 248, 243, 0.95) !important;
+        background: rgba(243, 253, 243, 0.95) !important;
         backdrop-filter: blur(10px) !important;
 
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1) !important;
@@ -208,9 +191,6 @@ nav a:hover {
         transition-delay: 0s !important;
     }
 
-    /* =========================
-       Mobile Links
-    ========================= */
 
     .mean-container .mean-nav ul li a {
         display: block !important;
