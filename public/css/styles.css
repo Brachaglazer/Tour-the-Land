@@ -41,33 +41,7 @@ h2 {
     font-weight: 400;
 }
 
-/* NAV */
-nav {
-    background: rgba(255,255,255,0.6);
-    backdrop-filter: blur(10px);
-    padding: 1rem 2rem;
-    margin: 0 -1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
 
-.logo {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--primary);
-}
-
-nav a {
-    text-decoration: none;
-    color: var(--primary);
-    margin-left: 1rem;
-    font-weight: 500;
-}
-
-nav a:hover {
-    color: var(--accent);
-}
 
 /* PAGE */
 .page {

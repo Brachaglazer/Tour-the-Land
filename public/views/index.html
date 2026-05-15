@@ -5,9 +5,13 @@
     <link rel="stylesheet" href="../css/styles.css">
     <meta charset="UTF-8">
 
+    
+    <link rel="stylesheet" href="css/meanmenu.min.css" type="text/css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/responsiveslides.css">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="js/responsiveslides.min.js"></script>
     <script>
       $(function() {
@@ -21,19 +25,26 @@
           namespace: "rslides"
         });
       });
+
+      
     </script>
 </head>
 <body>
 
-<nav class="navbar" aria-label="Main navigation">
-  <h2 class="logo">Explore the Land</h2>
-  <div class="nav-links">
-    <a href="index.html">Home</a>
-    <a href="reviews.html">Reviews</a>
-    <a href="contact.html">Contact</a>
-    <a href="login.html" onclick="logoutUser()">Logout</a>
-  </div>
-</nav>
+<header class="top-bar">
+  <nav id="navigation" class="navbar" aria-label="Main navigation">
+
+    <h2 class="logo">Explore the Land</h2>
+
+    <ul class="menu">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="reviews.html">Reviews</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="login.html" onclick="logoutUser()">Logout</a></li>
+    </ul>
+
+  </nav>
+</header>
 
 
 <div class="page">
@@ -56,5 +67,20 @@
 </footer>
 
 <script src="../js/script.js"></script>
+<script src="js/jquery.meanmenu.min.js"></script>
+
+<script>
+jQuery(document).ready(function () {
+    jQuery('#navigation').meanmenu({
+        meanScreenWidth: 800,
+        meanMenuContainer: 'header.top-bar',
+        meanMenuClose: "✕ Close",
+        meanMenuOpen: "☰ Menu",
+        meanRevealPosition: "right",
+        meanRevealColour: "#333",
+        meanNavPush: "0"
+    });
+});
+</script>
 </body>
 </html>
