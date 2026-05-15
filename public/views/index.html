@@ -2,31 +2,60 @@
 <html>
 <head>
     <title>Explore the Land</title>
-    <link rel="stylesheet" href="../css/styles.css">
     <meta charset="UTF-8">
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/meanmenu.min.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/menu.css">
+    <link rel="stylesheet" href="/css/responsiveslides.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+
 <body>
 
-<nav class="navbar" aria-label="Main navigation">
-  <h2 class="logo">Explore the Land</h2>
-  <div class="nav-links">
-    <a href="index.html">Home</a>
-    <a href="reviews.html">Reviews</a>
-    <a href="contact.html">Contact</a>
-    <a href="login.html" onclick="logoutUser()">Logout</a>
-  </div>
-</nav>
+<div id="navbar"></div>
 
-<div class="container">
-  <h1>Explore the Land</h1>
-  <h2>See Eretz Yisroel Like Never Before!</h2>
-  <a class="btn btn-center" href="reviews.html">Read Reviews</a>
+<div class="spacer"></div>
+
+<div class="page">
+
+    <ul class="rslides">
+        <li><img src="/images/slide1.jpg" alt="Review Slide"></li>
+        <li><img src="/images/slide2.jpg" alt="Try Us Slide"></li>
+        <li><img src="/images/slide3.jpg" alt="Message Slide"></li>
+    </ul>
+
+    <h1>Explore the Land</h1>
+    <h2>See Eretz Yisroel Like Never Before!</h2>
+
+    <a class="btn btn-center" href="reviews.html">Read Reviews</a>
+
 </div>
 
 <footer>
-  <a href="contact.html">Contact Us</a>
+    <a href="contact.html">Contact Us</a>
 </footer>
 
-<script src="../js/script.js"></script>
+<script src="/js/responsiveslides.min.js"></script>
+<script src="/js/jquery.meanmenu.min.js"></script>
+<script src="/js/script.js"></script>
+<script src="/js/components.js"></script>
+
+<script>
+$(function () {
+    $(".rslides").responsiveSlides({
+        auto: true,
+        pager: true,
+        nav: true,
+        speed: 700,
+        timeout: 4000,
+        maxwidth: 800,
+        namespace: "rslides"
+    });
+});
+</script>
+
 </body>
 </html>
