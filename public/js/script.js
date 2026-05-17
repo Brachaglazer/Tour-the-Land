@@ -440,10 +440,47 @@ function renderTrips() {
     });
 }
 
+function reviewSuggestions() {
+    const reviewSuggestions = document.getElementById("reviewSuggestions");
+    if (!reviewSuggestions) return;
+    const userId = getUserId();
+    if (!userId) return;
+    fetch(`${apiBase}/trips/${userId}`, 
+        {
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + getAuthToken()
+            },
+        }
+    )
+    .then(handleJsonResponse)
+    .then(trips => {
+        console.log("testing trips", trips)
+        if (!trips.length) {
+            reviewSuggestions.innerHTML = '<p class="no-trips">No trips yet? Begin planning your first!.</p>';
+            return;
+        }
+        reviewSuggestions.innerHTML = '<p>Back from your trip? Let us know how it was!</p>'
+        reviewSuggestions.innerHTML += trips.map((trip, index) => `
+            <article class="trip-card" style="animation-delay: ${index * 0.08}s;">
+                <div class="trip-meta">
+                    <strong>${trip.title}</strong>
+                    <span>${trip.start_date} - ${trip.end_date}</span>
+                </div>
+                <p>${trip.description}</p>
+            </article>
+        `).join("");
+    })
+    .catch(() => {
+        return;
+    });
+}
+
 window.updateAuthUI = updateAuthUI;
 
 document.addEventListener("DOMContentLoaded", () => {
     updateAuthUI();
     renderReviews();
     renderTrips();
+    reviewSuggestions();
 });
