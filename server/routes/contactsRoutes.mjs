@@ -9,46 +9,45 @@ Contact Routes:
 
 const router = express.Router();
 
+const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+        user: 'tourtheland43@gmail.com',
+        pass: 'pidi qmod nvxh rykr'
+    }
+});
+
 router.post('/', async (req, res) => {
     const { name, email, message } = req.body;
 
-    // Set up nodemailer transporter
-    const transporter = nodemailer.createTransport({
-        service: 'Gmail',
-        auth: {
-            user: 'tourtheland43@gmail.com',
-            pass: 'pidi qmod nvxh rykr'
+    try {
+        const collection = await db.collection("contacts");
+        const newDocument = { name, email, message, date: new Date().toLocaleDateString() };
+        const result = await collection.insertOne(newDocument);
+
+        const mailOptions = {
+            from: 'tourtheland43@gmail.com',
+            to: 'tourtheland43@gmail.com',
+            subject: `Contact request from ${name} - ${email}`,
+            text: message
+        };
+
+        let emailSent = false;
+        try {
+            await transporter.sendMail(mailOptions);
+            emailSent = true;
+        } catch (error) {
+            console.error('Email send error:', error);
         }
-    });
 
-    // Email message options
-    const mailOptions = {
-        from: 'tourtheland43@gmail.com',
-        to: 'tourtheland43@gmail.com',
-        subject: `Contact request from ${name} - ${email}`,
-        text: message
-    };
-
-    // Send email
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.log(error);
-	    console.log(`Message from ${name} - ${email}`);
-            res.status(500).json({ message: 'Failed to send email' });
-        } else {
-            console.log('Email sent: ' + info.response);
-            res.json({ message: 'Email sent successfully' });
-        }
-    });
-
-    // Add contact info to db
-    let collection = await db.collection("contacts");
-    let newDocument = req.body;
-    newDocument.date = new Date().toLocaleDateString();
-    let result = await collection.insertOne(newDocument);
-    res.json({ message: 'Contact sent successfully', contactId: result._id })
+        res.json({
+            message: emailSent ? 'Contact sent successfully' : 'Contact saved, but email delivery failed',
+            contactId: result.insertedId
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to save contact message. Please try again later.' });
+    }
 });
-
-
 
 export default router;

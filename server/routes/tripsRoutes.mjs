@@ -1,4 +1,5 @@
 import express from "express";
+import { ObjectId } from "mongodb";
 import db from "../conn.mjs";
 import jwt from 'jsonwebtoken';
 
@@ -17,7 +18,7 @@ async function authenticate(req, res, next) {
     if (!token) return res?.status(401).json({ message: 'No token provided.' });
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tourtheland-secret');
         req.user = decoded;
         next();
     } catch (error) {
@@ -28,30 +29,28 @@ async function authenticate(req, res, next) {
 router.get("/:id", authenticate, async (req, res) => {
     let collection = await db.collection("trips");
     let query = { user_id: ObjectId(req.params.id) };
-    let results = await collection.find({ query })
-    .toArray();
-    if (!results) res.send("Trips not found for user").status(404);
-    else res.send(results).status(200);
+    let results = await collection.find(query).toArray();
+    if (!results.length) return res.status(404).json({ message: "Trips not found for user" });
+    res.status(200).json(results);
 });
 
 router.post('/addTrip', authenticate, async (req, res) => {
-    // create trip entry
     let collection = await db.collection("trips");
     let newTrip = req.body;
     newTrip.created_at = new Date().toLocaleDateString();
     let result = await collection.insertOne(newTrip);
 
-    // create a trip user entry
     let userCollection = await db.collection("trip_users");
     let newTripUser = {
-        trip_id: result._id, 
-        user_id: result.user_id, 
+        trip_id: result.insertedId,
+        user_id: newTrip.user_id,
         role: "owner",
-        invited_by: result.user_id,
-        created_at: new Date().toLocaleDateString()}
+        invited_by: newTrip.user_id,
+        created_at: new Date().toLocaleDateString()
+    };
     let tripUserResult = await userCollection.insertOne(newTripUser);
 
-    res.json({ message: 'Trip added successfully', tripId: result._id, tripUserId: tripUserResult._id})
+    res.json({ message: 'Trip added successfully', tripId: result.insertedId, tripUserId: tripUserResult.insertedId });
 });
 
 router.patch('/updateTrip/:id', authenticate, async (req, res) => {
@@ -59,21 +58,20 @@ router.patch('/updateTrip/:id', authenticate, async (req, res) => {
     let updateTrip = req.body;
     let query = { _id: ObjectId(req.params.id) };
     updateTrip.updated_at = new Date().toLocaleDateString();
-    let result = await collection.UpdateOne(query, updateTrip);
-    res.json({ message: 'Trip updated successfully' })
+    await collection.updateOne(query, { $set: updateTrip });
+    res.json({ message: 'Trip updated successfully' });
 });
 
 router.delete("/deleteTrip/:id", authenticate, async (req, res) => {
-  const collection = db.collection("trips");
-  const query = { _id: ObjectId(req.params.id) };
-  let result = await collection.deleteOne(query);
+    const collection = db.collection("trips");
+    const query = { _id: ObjectId(req.params.id) };
+    let result = await collection.deleteOne(query);
 
-  // delete all trip user entries with specified trip
-  const userCollection = db.collection("trip_user");
-  const userQuery = { trip_id: ObjectId(req.params.id) };
-  let tripUserResult = await userCollection.deleteMany(userQuery);
+    const userCollection = db.collection("trip_users");
+    const userQuery = { trip_id: ObjectId(req.params.id) };
+    await userCollection.deleteMany(userQuery);
 
-  res.send(result).status(200);
+    res.status(200).json(result);
 });
 
 export default router;
