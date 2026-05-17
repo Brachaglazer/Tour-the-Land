@@ -353,52 +353,73 @@ function addTrip() {
 function showWeather() {
     const city = document.getElementById("tripLocation").value.trim();
     const modal = document.getElementById("weatherModal");
+    const overlay = document.getElementById("weatherModalOverlay");
 
-    let locationKey = ""
-    fetch(`https://dataservice.accuweather.com/locations/v1/cities/search?q=${city}`,
-        {
-            headers: {
-                "Content-Type": "application/json",
-                'Authorization': 'Bearer ' + 'zpka_c43764e580f947d4ab01c232815d963b_f082852d'
-            },
-        }
-    )
-    .then(handleJsonResponse)
-    .then(data => {
-        locationKey = data[0].Key;
-    })
-    .catch((error) => {
-        console.log("error fetching code")
-    });
+    const getCode = (city) => {
+        fetch(`https://dataservice.accuweather.com/locations/v1/cities/search?q=${city}`,
+            {
+                headers: {
+                    "Access-Control-Allow-Origin":  "*",
+                    "Access-Control-Allow-Methods": "GET",
+                    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+                    "Content-Type": "application/json",
+                    'Authorization': 'Bearer ' + 'zpka_c43764e580f947d4ab01c232815d963b_f082852d'
+                },
+            }
+        )
+        .then(handleJsonResponse)
+        .then(data => {
+            const locationKey =  data[0].Key;
+            getWeather(locationKey);
+        })
+        .catch((error) => {
+            console.log("error fetching code")
+        });
+    }
 
-    let temp = "";
-    let realFeel = "";
-    let humidity = "";
-    let wind = "";
-    let link = "";
+    const getWeather = (locationKey) => {
+        let temp = "";
+        let precipitation = false;
+        let overall = ""
+        let link = "";
 
-    /*fetch(`https://dataservice.accuweather.com/currentconditions/v1/${locationKey}`,
-        {
-            headers: {
-                "Access-Control-Allow-Origin": "http://localhost:3000/",
-                'Access-Control-Allow-Credentials': 'true',
-                "Content-Type": "application/json",
-                'Authorization': 'Bearer ' + 'zpka_c43764e580f947d4ab01c232815d963b_f082852d'
-            },
-        }
-    )
-    .then(handleJsonResponse)
-    .then(data => {
-        console.log("testing data returned", data);
-        temp = data.Temperature;
-        realFeel = data.RealFeelTemperature;
-        humidity = data.RelativeHumidity;
-        wind = data.Wind;
-        link = data.Link;
-    })
-    .catch((error) => {
-        console.log("error fetching weather")
-    });*/
+        fetch(`https://dataservice.accuweather.com/currentconditions/v1/${locationKey}`,
+            {
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET",
+                    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+                    "Content-Type": "application/json",
+                    'Authorization': 'Bearer ' + 'zpka_c43764e580f947d4ab01c232815d963b_f082852d'
+                },
+            }
+        )
+        .then(handleJsonResponse)
+        .then(data => {
+            temp = data[0].Temperature.Imperial.Value;
+            precipitation = data[0].HasPrecipitation;
+            overall = data[0].WeatherText;
+            link = data[0].Link;
+            overlay.style.display = "block";
+            modal.style.display = "block";
+            modal.innerHTML = `
+                <span id="modalClose" onclick="closeWeatherModal()">✖</span>
+                <h2>Curious about the weather in ${city}?</h2>
+                <p class="weatherDetail"> <span class="weatherQ">How warm is it?</span> <span class="weatherA">${temp} °F</span></p>
+                <p class="weatherDetail"> <span class="weatherQ">Is it raining?</span> <span class="weatherA">${precipitation === true? "Yes! Grab an umbrella!" : "Nope, all dry!"}</span></p>
+                <p class="weatherDetail"> <span class="weatherQ">What's the sky status?</span> <span class="weatherA">${overall}</span></p>
+                <p class="weatherDetail"> <span class="weatherQ">What else can you tell me?</span> <span class="weatherA"><a href=${link} target="_blank">See more!</a></span></>
+            `
+        })
+        .catch((error) => {
+            console.log("error fetching weather")
+        });
+    }
+    getCode(city);
+}
+
+function closeWeatherModal() {
+    document.getElementById("weatherModalOverlay").style.display = "none";
 }
 
 function renderTrips() {
@@ -419,7 +440,6 @@ function renderTrips() {
     )
     .then(handleJsonResponse)
     .then(trips => {
-        console.log("testing trips", trips)
         if (!trips.length) {
             tripsList.innerHTML = '<p class="no-trips">No trips yet. Begin planning your first!.</p>';
             return;
@@ -455,19 +475,18 @@ function reviewSuggestions() {
     )
     .then(handleJsonResponse)
     .then(trips => {
-        console.log("testing trips", trips)
         if (!trips.length) {
             reviewSuggestions.innerHTML = '<p class="no-trips">No trips yet? Begin planning your first!.</p>';
             return;
         }
-        reviewSuggestions.innerHTML = '<p>Back from your trip? Let us know how it was!</p>'
+        reviewSuggestions.innerHTML = '<p id="suggestTitle">Back from your trip? Let us know how it was!</p>';
         reviewSuggestions.innerHTML += trips.map((trip, index) => `
             <article class="trip-card" style="animation-delay: ${index * 0.08}s;">
                 <div class="trip-meta">
                     <strong>${trip.title}</strong>
                     <span>${trip.start_date} - ${trip.end_date}</span>
+                    <span><a class="btn" href="reviews.html">Write Review</a></span>
                 </div>
-                <p>${trip.description}</p>
             </article>
         `).join("");
     })

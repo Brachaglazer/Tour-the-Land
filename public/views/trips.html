@@ -24,13 +24,12 @@
     <h2 id="trip-form-heading">Add a Trip</h2>
 
     <label for="tripLocation">Location</label>
-    <input type="text" id="tripLocation" placeholder="City name">
-
+    <p id="locationBox">
+      <input type="text" id="tripLocation" placeholder="City name">  
+      <img onclick="showWeather()" id="weatherIcon" src="/images/weather-svgrepo-com.png" alt="weather">
+    </p>
     <label for="tripDesc">Description</label>
     <textarea id="tripDesc" placeholder="Your notes"></textarea>
-
-    <button onclick="showWeather()">What's the weather like?</button>
-    <div id="weatherModal"></div>
     
     <label for="tripStart">Start Date</label>
     <input type="date" id="tripStart">
@@ -40,12 +39,16 @@
 
     <button onclick="addTrip()">Add Trip</button>
     <div id="trip-feedback" class="response-message" aria-live="polite"></div>
+
   </section>
 
   <section id="trips-section">
-    <h2>All Trips</h2>
+    <h2>My Trips</h2>
     <div id="tripsList"></div>
   </section>
+</div>
+<div id="weatherModalOverlay">
+  <div id="weatherModal"></div>
 </div>
 
 <script src="../js/script.js"></script>
