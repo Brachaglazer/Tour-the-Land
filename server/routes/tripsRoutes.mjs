@@ -28,9 +28,8 @@ async function authenticate(req, res, next) {
 
 router.get("/:id", authenticate, async (req, res) => {
     let collection = await db.collection("trips");
-    let query = { user_id: ObjectId(req.params.id) };
+    let query = { user_id: req.params.id };
     let results = await collection.find(query).toArray();
-    if (!results.length) return res.status(404).json({ message: "Trips not found for user" });
     res.status(200).json(results);
 });
 

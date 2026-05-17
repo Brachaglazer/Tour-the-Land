@@ -27,7 +27,7 @@ app.use("/trips", tripsRoutes);
 app.use("/itinerary", itineraryRoutes);
 app.use("/tripUsers", tripUsersRoutes);
 
-const viewPages = ["index", "login", "register", "contact", "reviews"];
+const viewPages = ["index", "login", "register", "contact", "reviews", "trips"];
 app.get('/:page.html', (req, res, next) => {
     const pageName = req.params.page;
     if (!viewPages.includes(pageName)) return next();

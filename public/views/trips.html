@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trips - Explore the Land</title>
+    <meta charset="UTF-8">
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/meanmenu.min.css">
+    <link rel="stylesheet" href="/css/menu.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/jquery.meanmenu.min.js"></script>
+    <script src="../js/components.js"></script>
+</head>
+<body>
+
+<div id="navbar"></div>
+
+<div class="container">
+  <h1>Your Trips</h1>
+  <p class="intro">View your previous trips or start planning a new one!</p>
+
+  <section id="trip-form" aria-labelledby="review-form-heading">
+    <h2 id="trip-form-heading">Add a Trip</h2>
+
+    <label for="tripLocation">Location</label>
+    <input type="text" id="tripLocation" placeholder="City name">
+
+    <label for="tripDesc">Description</label>
+    <textarea id="tripDesc" placeholder="Your notes"></textarea>
+
+    <button onclick="showWeather()">What's the weather like?</button>
+    <div id="weatherModal"></div>
+    
+    <label for="tripStart">Start Date</label>
+    <input type="date" id="tripStart">
+
+    <label for="tripEnd">End Date</label>
+    <input type="date" id="tripEnd">
+
+    <button onclick="addTrip()">Add Trip</button>
+    <div id="trip-feedback" class="response-message" aria-live="polite"></div>
+  </section>
+
+  <section id="trips-section">
+    <h2>All Trips</h2>
+    <div id="tripsList"></div>
+  </section>
+</div>
+
+<script src="../js/script.js"></script>
+</body>
+</html>
