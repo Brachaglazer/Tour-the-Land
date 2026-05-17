@@ -429,7 +429,7 @@ function renderTrips() {
             <article class="trip-card" style="animation-delay: ${index * 0.08}s;">
                 <div class="trip-meta">
                     <strong>${trip.title}</strong>
-                    <span>${trip.start_date}</span> - <span>${trip.end_date}</span>
+                    <span>${trip.start_date} - ${trip.end_date}</span>
                 </div>
                 <p>${trip.description}</p>
             </article>
