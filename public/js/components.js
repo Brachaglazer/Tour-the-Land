@@ -25,6 +25,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // give browser 1 tick to render injected HTML
     setTimeout(() => {
         initMenu();
+        if (window.updateAuthUI) {
+            window.updateAuthUI();
+        }
     }, 50);
 
 });

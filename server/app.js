@@ -1,7 +1,15 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+
+import usersRoutes from "./routes/usersRoutes.mjs";
+import contactsRoutes from "./routes/contactsRoutes.mjs";
+import reviewsRoutes from "./routes/reviewsRoutes.mjs";
+import tripsRoutes from "./routes/tripsRoutes.mjs";
+import itineraryRoutes from "./routes/itineraryRoutes.mjs";
+import tripUsersRoutes from "./routes/tripUsersRoutes.mjs";
 
 const app = express();
 
@@ -12,11 +20,25 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(express.static(path.join(__dirname, "../public")));
+app.use("/users", usersRoutes);
+app.use("/contacts", contactsRoutes);
+app.use("/reviews", reviewsRoutes);
+app.use("/trips", tripsRoutes);
+app.use("/itinerary", itineraryRoutes);
+app.use("/tripUsers", tripUsersRoutes);
+
+const viewPages = ["index", "login", "register", "contact", "reviews"];
+app.get('/:page.html', (req, res, next) => {
+    const pageName = req.params.page;
+    if (!viewPages.includes(pageName)) return next();
+    res.sendFile(path.join(__dirname, `../public/views/${pageName}.html`));
+});
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "../public/views/index.html"));
 });
 
-app.listen(3000, () => {
-    console.log("Server running on http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });

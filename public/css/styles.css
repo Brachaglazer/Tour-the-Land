@@ -267,6 +267,26 @@ h2 {
     border: 2px solid var(--accent);
 }
 
+.nav-greeting {
+    color: var(--primary);
+    font-weight: 600;
+    margin-left: 1rem;
+    display: inline-block;
+}
+
+.form-callout {
+    max-width: 600px;
+    margin: 1.25rem auto 0;
+    text-align: center;
+    color: #1b3a4b;
+    font-weight: 500;
+}
+
+.form-callout a {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
 /* FOOTER */
 footer {
     text-align: center;

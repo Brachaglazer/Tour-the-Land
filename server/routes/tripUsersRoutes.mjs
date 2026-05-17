@@ -1,4 +1,5 @@
 import express from "express";
+import { ObjectId } from "mongodb";
 import db from "../conn.mjs";
 import jwt from 'jsonwebtoken';
 
@@ -12,13 +13,12 @@ Trips User Routes:
 
 const router = express.Router();
 
-
 async function authenticate(req, res, next) {
     const token = req?.headers?.authorization?.split(' ')[1];
     if (!token) return res?.status(401).json({ message: 'No token provided.' });
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tourtheland-secret');
         req.user = decoded;
         next();
     } catch (error) {
@@ -29,10 +29,9 @@ async function authenticate(req, res, next) {
 router.get("/:id", authenticate, async (req, res) => {
     let collection = await db.collection("trip_users");
     let query = { trip_id: ObjectId(req.params.id) };
-    let results = await collection.find({ query })
-    .toArray();
-    if (!results) res.send("Trip users not found for trip").status(404);
-    else res.send(results).status(200);
+    let results = await collection.find(query).toArray();
+    if (!results.length) return res.status(404).json({ message: "Trip users not found for trip" });
+    res.status(200).json(results);
 });
 
 router.post('/addTripUser', authenticate, async (req, res) => {
@@ -40,22 +39,22 @@ router.post('/addTripUser', authenticate, async (req, res) => {
     let newTripUser = req.body;
     newTripUser.created_at = new Date().toLocaleDateString();
     let result = await collection.insertOne(newTripUser);
-    res.json({ message: 'Trip user added successfully', tripUserId: result._id})
+    res.json({ message: 'Trip user added successfully', tripUserId: result.insertedId });
 });
 
 router.patch('/updateTripUser/:id', authenticate, async (req, res) => {
-    let collection = await db.collection("trip_user");
+    let collection = await db.collection("trip_users");
     let updateTripUser = req.body;
     let query = { _id: ObjectId(req.params.id) };
-    let result = await collection.UpdateOne(query, updateTripUser);
-    res.json({ message: 'Trip user updated successfully' })
+    await collection.updateOne(query, { $set: updateTripUser });
+    res.json({ message: 'Trip user updated successfully' });
 });
 
 router.delete("/deleteTripUser/:id", authenticate, async (req, res) => {
-  const collection = db.collection("trip_user");
+  const collection = db.collection("trip_users");
   const query = { _id: ObjectId(req.params.id) };
   let result = await collection.deleteOne(query);
-  res.send(result).status(200);
+  res.status(200).json(result);
 });
 
 export default router;

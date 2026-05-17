@@ -14,7 +14,7 @@ async function authenticate(req, res, next) {
     if (!token) return res?.status(401).json({ message: 'No token provided.' });
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tourtheland-secret');
         req.user = decoded;
         next();
     } catch (error) {
@@ -22,20 +22,26 @@ async function authenticate(req, res, next) {
     }
 }
 
-router.get("/", authenticate, async (req, res) => {
-    let collection = await db.collection("reviews");
-    let results = await collection.find({})
-    .toArray();
-    res.send(results).status(200);
+router.get("/", async (req, res) => {
+    try {
+        let collection = await db.collection("reviews");
+        let results = await collection.find({}).toArray();
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to load reviews.' });
+    }
 });
 
 router.post('/addReview', authenticate, async (req, res) => {
-    let collection = await db.collection("reviews");
-    let newReview = req.body;
-    newReview.date = new Date().toLocaleDateString();
-    let result = await collection.insertOne(newReview);
-    res.json({ message: 'Review added successfully', reviewId: result._id })
+    try {
+        let collection = await db.collection("reviews");
+        let newReview = req.body;
+        newReview.date = new Date().toLocaleDateString();
+        let result = await collection.insertOne(newReview);
+        res.json({ message: 'Review added successfully', reviewId: result.insertedId });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to add review.' });
+    }
 });
-
 
 export default router;
