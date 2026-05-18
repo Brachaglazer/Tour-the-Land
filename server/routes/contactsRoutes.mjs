@@ -12,8 +12,8 @@ const router = express.Router();
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-        user: 'tourtheland43@gmail.com',
-        pass: 'pidi qmod nvxh rykr'
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
@@ -26,8 +26,8 @@ router.post('/', async (req, res) => {
         const result = await collection.insertOne(newDocument);
 
         const mailOptions = {
-            from: 'tourtheland43@gmail.com',
-            to: 'tourtheland43@gmail.com',
+            from: process.env.EMAIL_USER,
+            to: process.env.EMAIL_USER,
             subject: `Contact request from ${name} - ${email}`,
             text: message
         };
