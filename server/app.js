@@ -10,6 +10,7 @@ import reviewsRoutes from "./routes/reviewsRoutes.mjs";
 import tripsRoutes from "./routes/tripsRoutes.mjs";
 import itineraryRoutes from "./routes/itineraryRoutes.mjs";
 import tripUsersRoutes from "./routes/tripUsersRoutes.mjs";
+import weatherRoutes from "./routes/weatherRoutes.mjs";
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use("/reviews", reviewsRoutes);
 app.use("/trips", tripsRoutes);
 app.use("/itinerary", itineraryRoutes);
 app.use("/tripUsers", tripUsersRoutes);
+app.use("/weather", weatherRoutes);
 
 const viewPages = ["index", "login", "register", "contact", "reviews", "trips"];
 app.get('/:page.html', (req, res, next) => {

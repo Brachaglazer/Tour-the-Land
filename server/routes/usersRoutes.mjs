@@ -1,16 +1,31 @@
 import express from "express";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { ObjectId } from 'mongodb';
 import db from "../conn.mjs";
 
 /*
 Users Routes:
 /register : POST new user
 /login: POST login user
+/me: GET current user
 */
 
 const router = express.Router();
 const jwtSecret = process.env.JWT_SECRET || "tourtheland-secret";
+
+function authenticate(req, res, next) {
+    const token = req?.headers?.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ message: 'No token provided.' });
+
+    try {
+        const decoded = jwt.verify(token, jwtSecret);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        return res.status(403).json({ message: 'Failed to authenticate token.' });
+    }
+}
 
 // Register user
 router.post('/register', async (req, res) => {
@@ -38,6 +53,17 @@ router.post('/login', async (req, res) => {
         res.json({ token, first_name: user.first_name, last_name: user.last_name, id: user._id });
     } else {
         res.status(401).json({ message: 'Invalid credentials' });
+    }
+});
+
+router.get('/me', authenticate, async (req, res) => {
+    try {
+        const collection = await db.collection("users");
+        const user = await collection.findOne({ _id: new ObjectId(req.user.userId) }, { projection: { hashedPassword: 0 } });
+        if (!user) return res.status(404).json({ message: 'User not found.' });
+        res.json({ id: user._id, first_name: user.first_name, last_name: user.last_name, email: user.email });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to load user.' });
     }
 });
 
