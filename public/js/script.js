@@ -80,6 +80,26 @@ function handleJsonResponse(response) {
     });
 }
 
+function formatTripDate(dateValue) {
+    if (!dateValue) return '';
+    if (typeof dateValue === 'string') return dateValue;
+    if (dateValue instanceof Date) return dateValue.toLocaleDateString();
+    if (typeof dateValue === 'object') {
+        if (typeof dateValue.$date === 'string' || dateValue.$date instanceof Date) {
+            return formatTripDate(dateValue.$date);
+        }
+        if (typeof dateValue.value === 'string' || typeof dateValue.value === 'number') {
+            return formatTripDate(dateValue.value);
+        }
+        try {
+            return new Date(dateValue).toLocaleDateString();
+        } catch (error) {
+            return String(dateValue);
+        }
+    }
+    return String(dateValue);
+}
+
 async function loadCurrentUser() {
     const token = getAuthToken();
     if (!token) {
@@ -564,7 +584,7 @@ function renderTrips() {
                         <div class="trip-meta">
                             <div>
                                 <strong>${trip.title}</strong>
-                                <p class="trip-date">${trip.start_date || 'TBD'} - ${trip.end_date || 'TBD'}</p>
+                                <p class="trip-date">${formatTripDate(trip.start_date) || 'TBD'} - ${formatTripDate(trip.end_date) || 'TBD'}</p>
                             </div>
                             <span class="role-badge ${trip.role}">${statusLabel}</span>
                         </div>
@@ -583,9 +603,9 @@ function renderTrips() {
                             <label for="editTripDesc-${trip._id}">Description *</label>
                             <textarea id="editTripDesc-${trip._id}" placeholder="Trip description">${trip.description}</textarea>
                             <label for="editTripStart-${trip._id}">Start date</label>
-                            <input id="editTripStart-${trip._id}" type="text" value="${trip.start_date}" placeholder="Start date">
+                            <input id="editTripStart-${trip._id}" type="text" value="${formatTripDate(trip.start_date)}" placeholder="Start date">
                             <label for="editTripEnd-${trip._id}">End date</label>
-                            <input id="editTripEnd-${trip._id}" type="text" value="${trip.end_date}" placeholder="End date">
+                            <input id="editTripEnd-${trip._id}" type="text" value="${formatTripDate(trip.end_date)}" placeholder="End date">
                             <button type="button" class="btn btn-secondary small" onclick="saveTrip('${trip._id}')">Save Changes</button>
                             <button type="button" class="btn btn-secondary small" onclick="toggleTripEditForm('${trip._id}')">Cancel</button>
                             <div id="tripEditFeedback-${trip._id}" class="activity-feedback"></div>
@@ -961,7 +981,7 @@ function reviewSuggestions() {
                 <article class="trip-card" style="animation-delay: ${index * 0.08}s;">
                     <div class="trip-meta">
                         <strong>${trip.title}</strong>
-                        <span>${trip.start_date} - ${trip.end_date}</span>
+                        <span>${formatTripDate(trip.start_date) || 'TBD'} - ${formatTripDate(trip.end_date) || 'TBD'}</span>
                         <span><a class="btn" href="/views/reviews.html">Write Review</a></span>
                     </div>
                 </article>

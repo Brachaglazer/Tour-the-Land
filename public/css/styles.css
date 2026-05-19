@@ -427,20 +427,20 @@ h2 {
     font-size: 0.85rem;
     font-weight: 700;
     color: #fff;
-    background: #6bb0c4;
+    background: #f8cfcf;
 }
 
 .role-badge.editor {
-    background: #4a8a5f;
+    background: #cadddf;
 }
 
 .role-badge.viewer {
-    background: #7d7d7d;
+    background: #bfbfbf;
 }
 
 .role-badge.creator,
 .role-badge.owner {
-    background: #2b5e7e;
+    background: #f6d7d7;
 }
 
 .reorder-btn {
