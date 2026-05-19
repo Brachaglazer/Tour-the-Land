@@ -39,7 +39,7 @@ router.post('/register', async (req, res) => {
         let created_at = new Date().toLocaleDateString();
         let newUser = { first_name, last_name, email, hashedPassword, created_at };
         let result = await collection.insertOne(newUser);
-        res.status(201).json({ message: 'User created successfully', userId: result.insertedId });
+        res.status(201).json({ message: 'User created successfully', userId: result.insertedId.toString() });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -52,8 +52,9 @@ router.post('/login', async (req, res) => {
     const user = await collection.findOne({ email });
 
     if (user && await bcrypt.compare(password, user.hashedPassword)) {
-        const token = jwt.sign({ userId: user._id }, getJwtSecret(), { expiresIn: '1h' });
-        res.json({ token, first_name: user.first_name, last_name: user.last_name, id: user._id, message: 'Logged in successfully' });
+        const userIdStr = user._id.toString();
+        const token = jwt.sign({ userId: userIdStr }, getJwtSecret(), { expiresIn: '1h' });
+        res.json({ token, first_name: user.first_name, last_name: user.last_name, id: userIdStr, message: 'Logged in successfully' });
     } else {
         res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -68,7 +69,7 @@ router.get('/me', authenticate, async (req, res) => {
         const collection = await db.collection("users");
         const user = await collection.findOne({ _id: new ObjectId(req.user.userId) }, { projection: { hashedPassword: 0 } });
         if (!user) return res.status(404).json({ message: 'User not found.' });
-        res.json({ id: user._id, first_name: user.first_name, last_name: user.last_name, email: user.email });
+        res.json({ id: user._id.toString(), first_name: user.first_name, last_name: user.last_name, email: user.email });
     } catch (error) {
         res.status(500).json({ message: 'Failed to load user.' });
     }

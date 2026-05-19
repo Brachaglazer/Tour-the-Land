@@ -293,8 +293,152 @@ h2 {
     border-radius: 18px;
 }
 
+.activity-section {
+    margin-top: 1.5rem;
+}
+
+.activity-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.activity-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.trip-actions,
+.activity-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.trip-edit-form {
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(204, 227, 222, 0.95);
+    border-radius: 22px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.trip-edit-form label,
+.activity-form label {
+    display: block;
+    margin-top: 1rem;
+    color: #3f5e67;
+}
+
+.btn-danger {
+    background: #ffebe6;
+    color: #a93f38;
+    border-color: rgba(169, 63, 56, 0.2);
+}
+
+.btn-danger:hover {
+    background: #ffd9cc;
+}
+
+.activity-card {
+    background: rgba(249, 253, 251, 0.95);
+    border: 1px solid rgba(204, 227, 222, 0.95);
+    border-radius: 20px;
+    padding: 1rem;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.05);
+}
+
+.activity-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.activity-time {
+    color: #4a7f6f;
+}
+
+.activity-separator {
+    color: #4a7f6f;
+}
+
+.activity-description {
+    margin-top: 0.65rem;
+    color: #4f6b7a;
+    line-height: 1.6;
+}
+
+.activity-form {
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(204, 227, 222, 0.95);
+    border-radius: 22px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.activity-form label {
+    display: block;
+    margin-top: 1rem;
+    color: #3f5e67;
+}
+
+.activity-form input,
+.activity-form textarea {
+    width: 100%;
+    margin-top: 0.45rem;
+    padding: 0.95rem 1rem;
+    border-radius: 16px;
+    border: 1px solid rgba(120,160,150,0.35);
+    background: #f7fbfa;
+    font-size: 0.95rem;
+}
+
+.activity-form textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.activity-feedback {
+    margin-top: 0.85rem;
+    font-size: 0.95rem;
+    display: none;
+}
+
+.activity-feedback.success {
+    color: #1d7f53;
+}
+
+.activity-feedback.error {
+    color: #b63636;
+}
+
+.btn-secondary {
+    background: #eef7f4;
+    color: #2f5e54;
+    border: 1px solid rgba(47,94,84,0.15);
+}
+
+.btn-secondary:hover {
+    background: #def0e8;
+}
+
+.small {
+    padding: 0.65rem 0.9rem;
+    font-size: 0.9rem;
+}
+
+.hide {
+    display: none !important;
+}
+
 .intro {
-    max-width: 800px;
     margin: 0 auto 1.5rem;
     color: #4f6b7a;
     font-size: 1rem;
