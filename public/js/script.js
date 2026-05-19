@@ -316,6 +316,23 @@ function renderReviews() {
         });
 }
 
+function addSuggestTrip() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('suggestId');
+    if (id == 1) {
+        document.getElementById('tripLocation').value = 'Yerushalayim';
+        document.getElementById('tripDesc').value = 'Explore the Kedusha of the city.';
+    } 
+    else if (id == 2) {
+        document.getElementById('tripLocation').value = 'Chaifa';
+        document.getElementById('tripDesc').value = 'Learn about the major port city of Israel.';
+    } 
+    else if (id == 3) {
+        document.getElementById('tripLocation').value = 'Eilat';
+        document.getElementById('tripDesc').value = 'Discover the beauty of Southern Israel.';
+    }
+}
+
 function addTrip() {
     const title = document.getElementById('tripLocation').value.trim();
     const description = document.getElementById('tripDesc').value.trim();
@@ -484,7 +501,7 @@ function reviewSuggestions() {
                 return;
             }
 
-            reviewSuggestions.innerHTML = '<p id="suggestTitle">Back from your trip? Let us know how it was!</p>';
+            reviewSuggestions.innerHTML = '<p id=".suggestTitle">Back from your trip? Let us know how it was!</p>';
             reviewSuggestions.innerHTML += trips.map((trip, index) => `
                 <article class="trip-card" style="animation-delay: ${index * 0.08}s;">
                     <div class="trip-meta">
@@ -508,4 +525,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderReviews();
     renderTrips();
     reviewSuggestions();
+    addSuggestTrip()
 });
