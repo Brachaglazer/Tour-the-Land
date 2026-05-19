@@ -32,6 +32,31 @@
     <p id="user-greeting" class="user-greeting"></p>
     <div id="reviewSuggestions"></div>
 
+    <div id="tripSuggestions">
+        <p class="suggestTitle">Suggested Trips For You</p>
+        <article class="trip-card" style="animation-delay: ${index * 0.08}s;">
+            <div class="trip-meta">
+                <strong>Yerushalayim</strong>
+                <span>Explore the Kedusha of the city while visiting sites like the Kosel, Geula, and Sorotzkin.</span>
+                <span><a href="/trips.html?suggestId=1"><button class="btn" onclick="addSuggestTrip(1)">Add Trip</button></a></span>
+            </div>
+        </article>
+        <article class="trip-card" style="animation-delay: ${index * 0.08}s;">
+            <div class="trip-meta">
+                <strong>Chaifa</strong>
+                <span>Learn about the major port city of Israel and it's trading.</span>
+                <span><a href="/trips.html?suggestId=2"><button class="btn" onclick="addSuggestTrip(2)">Add Trip</button></a></span>
+            </div>
+        </article>
+        <article class="trip-card" style="animation-delay: ${index * 0.08}s;">
+            <div class="trip-meta">
+                <strong>Eilat</strong>
+                <span>Discover the beauty of Southern Israel and some of the funnest water activities.</span>
+                <span><a href="/trips.html?suggestId=3"><button class="btn">Add Trip</button></a></span>
+            </div>
+        </article>
+    </div>
+
     <a class="btn btn-center" href="reviews.html">Read Reviews</a>
 
 </div>

@@ -633,7 +633,14 @@ footer a:hover {
     grid-template-columns: auto auto auto auto;
 }
 
-#suggestTitle {
+#tripSuggestions {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+    grid-template-columns: auto auto auto auto;
+}
+
+.suggestTitle {
     margin: 2rem;
     grid-column: 1/-1;
 }
