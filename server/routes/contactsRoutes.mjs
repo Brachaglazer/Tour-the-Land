@@ -27,8 +27,7 @@ router.post('/', async (req, res) => {
         let responseMessage = 'Contact saved successfully.';
 
         if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-            responseMessage = 'Contact saved, but email is not configured.';
-            console.warn('Contact form submission saved without email send because EMAIL_USER or EMAIL_PASS is missing.');
+            responseMessage = 'Contact saved! Our email is down at this time, applogies for the inconvinience.';
         } else {
             const transporter = nodemailer.createTransport({
                 service: 'Gmail',
@@ -43,7 +42,7 @@ router.post('/', async (req, res) => {
                 responseMessage = 'Contact sent successfully';
             } catch (error) {
                 console.error('Email send error:', error);
-                responseMessage = 'Contact saved, but email delivery failed.';
+                responseMessage = 'Contact saved; email delivery failed.';
             }
         }
 
