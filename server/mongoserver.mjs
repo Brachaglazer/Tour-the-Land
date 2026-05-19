@@ -1,29 +1,26 @@
+import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import "express-async-errors";
+
 import contactsRoutes from "./routes/contactsRoutes.mjs";
-import itineraryRoutes from "./routes/itineraryRoutes.mjs"
+import itineraryRoutes from "./routes/itineraryRoutes.mjs";
 import reviewsRoutes from "./routes/reviewsRoutes.mjs";
 import tripsRoutes from "./routes/tripsRoutes.mjs";
-import tripUsersRoutes from "./routes/tripUsersRoutes.mjs"
-import usersRoutes from "./routes/usersRoutes.mjs"
-import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
+import tripUsersRoutes from "./routes/tripUsersRoutes.mjs";
+import usersRoutes from "./routes/usersRoutes.mjs";
+import weatherRoutes from "./routes/weatherRoutes.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const envPath = path.resolve(__dirname, "../.env");
 dotenv.config({ path: envPath });
-console.log(`Loaded env from ${envPath}`);
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const app = express();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const publicDir = path.join(__dirname, "..", "public");
 
 app.use(cors());
@@ -40,11 +37,13 @@ app.use("/reviews", reviewsRoutes);
 app.use("/trips", tripsRoutes);
 app.use("/tripUsers", tripUsersRoutes);
 app.use("/users", usersRoutes);
+app.use("/weather", weatherRoutes);
 
 // Global error handling
-app.use((err, _req, res, next) => {
-  res.status(500).send("Uh oh! An unexpected error occured.")
-})
+app.use((err, _req, res, _next) => {
+  console.error(err);
+  res.status(500).send("Uh oh! An unexpected error occurred.");
+});
 
 // start the Express server
 app.listen(PORT, () => {

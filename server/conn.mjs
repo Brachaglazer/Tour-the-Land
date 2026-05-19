@@ -1,17 +1,20 @@
 import { MongoClient } from "mongodb";
 
-const uri = "mongodb+srv://tourtheland43_db_user:tourtheland@cluster0.gmd21v4.mongodb.net/?appName=Cluster0&ssl=true";
-const connectionString = process.env.ATLAS_URI || uri;
+const connectionString = process.env.ATLAS_URI;
+if (!connectionString) {
+  console.error("Missing ATLAS_URI environment variable. Set ATLAS_URI in your .env file.");
+  process.exit(1);
+}
 
 const client = new MongoClient(connectionString);
 
-let conn;
+let db;
 try {
-  conn = await client.connect();
-} catch(e) {
+  await client.connect();
+  db = client.db(process.env.DB_NAME || "Tour_the_Land");
+} catch (e) {
   console.error(e);
+  process.exit(1);
 }
-
-let db = client.db("Tour_the_Land");
 
 export default db;
