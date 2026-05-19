@@ -80,6 +80,17 @@ router.get("/:id", authenticate, async (req, res) => {
 
 router.post('/addTrip', authenticate, async (req, res) => {
     let collection = await db.collection("trips");
+    let activities = [];
+    if (Array.isArray(req.body.activities)) {
+        activities = req.body.activities.map(activity => ({
+            activityId: activity.activityId || new ObjectId().toString(),
+            title: activity.title ? activity.title.trim() : '',
+            description: activity.description ? activity.description.trim() : '',
+            time: activity.time ? activity.time.trim() : '',
+            created_at: activity.created_at || new Date().toLocaleDateString()
+        }));
+    }
+
     let newTrip = {
         title: req.body.title,
         description: req.body.description,
@@ -87,7 +98,7 @@ router.post('/addTrip', authenticate, async (req, res) => {
         start_date: req.body.start_date || '',
         end_date: req.body.end_date || '',
         created_at: new Date().toLocaleDateString(),
-        activities: []
+        activities
     };
 
     let result = await collection.insertOne(newTrip);
