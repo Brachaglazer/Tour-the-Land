@@ -20,10 +20,23 @@
   <h1>Your Trips</h1>
   <p class="intro">View your previous trips or start planning a new one!</p>
 
-  <section class="form" aria-labelledby="review-form-heading">
-    <h2 id="trip-form-heading">Add a Trip</h2>
+  <div class="trips-layout">
+    <aside class="trip-sidebar">
+      <div class="sidebar-header">
+        <h2>Trip Library</h2>
+        <p class="sidebar-text">Search your saved itineraries and jump directly to the trip details.</p>
+        <input id="tripSearch" type="search" placeholder="Search trips..." aria-label="Search trips">
+      </div>
+      <div id="tripNavList" class="trip-nav-list">
+        <p class="no-trips">Loading your trips…</p>
+      </div>
+    </aside>
 
-    <button type="button" class="btn" onclick="openSampleTripsModal()">Not sure where to start? Choose from our samples!</button>
+    <main class="trips-main">
+      <section class="form" aria-labelledby="review-form-heading">
+        <h2 id="trip-form-heading">Add a Trip</h2>
+
+        <button type="button" class="btn" onclick="openSampleTripsModal()">Not sure where to start? Choose from our samples!</button>
 
     <label for="tripLocation">Location</label>
     <p id="locationBox">
@@ -48,6 +61,8 @@
     <h2>My Trips</h2>
     <div id="tripsList"></div>
   </section>
+    </main>
+  </div>
 </div>
 <div id="weatherModalOverlay">
   <div id="weatherModal"></div>
@@ -56,6 +71,7 @@
   <div id="tripModal" class="modal-card"></div>
 </div>
 
+<script src="/js/sampleTrips.js"></script>
 <script src="../js/script.js"></script>
 </body>
 </html>
