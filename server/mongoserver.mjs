@@ -10,7 +10,14 @@ import tripsRoutes from "./routes/tripsRoutes.mjs";
 import tripUsersRoutes from "./routes/tripUsersRoutes.mjs"
 import usersRoutes from "./routes/usersRoutes.mjs"
 import dotenv from "dotenv";
-dotenv.config();
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.resolve(__dirname, "../.env");
+dotenv.config({ path: envPath });
+console.log(`Loaded env from ${envPath}`);
 
 const PORT = 3000;
 const app = express();

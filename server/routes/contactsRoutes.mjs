@@ -9,14 +9,6 @@ Contact Routes:
 
 const router = express.Router();
 
-const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
-
 router.post('/', async (req, res) => {
     const { name, email, message } = req.body;
 
@@ -32,16 +24,30 @@ router.post('/', async (req, res) => {
             text: message
         };
 
-        let emailSent = false;
-        try {
-            await transporter.sendMail(mailOptions);
-            emailSent = true;
-        } catch (error) {
-            console.error('Email send error:', error);
+        let responseMessage = 'Contact saved successfully.';
+
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            responseMessage = 'Contact saved! Our email is down at this time, applogies for the inconvinience.';
+        } else {
+            const transporter = nodemailer.createTransport({
+                service: 'Gmail',
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS
+                }
+            });
+
+            try {
+                await transporter.sendMail(mailOptions);
+                responseMessage = 'Contact sent successfully';
+            } catch (error) {
+                console.error('Email send error:', error);
+                responseMessage = 'Contact saved; email delivery failed.';
+            }
         }
 
         res.json({
-            message: emailSent ? 'Contact sent successfully' : 'Contact saved, but email delivery failed',
+            message: responseMessage,
             contactId: result.insertedId
         });
     } catch (error) {

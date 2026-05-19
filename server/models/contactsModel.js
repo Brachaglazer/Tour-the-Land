@@ -27,7 +27,7 @@ const uri = "mongodb+srv://tourtheland43_db_user:tourtheland@cluster0.gmd21v4.mo
 
   const contacts = [
     {
-      name: "Devora",
+      name: "Devorah",
       email: "dteitelb@student.touro.edu",
       message: "founder",
       date: new Date().toLocaleDateString()

@@ -176,9 +176,13 @@ function loginUser() {
 }
 
 function logoutUser() {
-    clearAuthInfo();
-    updateAuthUI();
-    window.location.href = '/views/login.html';
+    fetch(`${apiBase}/users/logout`, {
+        method: 'POST'
+    }).finally(() => {
+        clearAuthInfo();
+        updateAuthUI();
+        window.location.href = '/views/login.html';
+    });
 }
 
 function sendFooterContact() {
@@ -335,9 +339,18 @@ function addTrip() {
         return;
     }
 
+    const userId = getUserId();
+    if (!userId) {
+        feedback.style.display = 'block';
+        feedback.className = 'error';
+        feedback.innerText = 'Please log in to add a trip.';
+        return;
+    }
+
     const trip = {
         title,
         description,
+        user_id: userId,
         start_date: start_date ? new Date(start_date).toLocaleDateString() : '',
         end_date: end_date ? new Date(end_date).toLocaleDateString() : ''
     };
@@ -393,7 +406,7 @@ function showWeather() {
             renderWeatherModal(`
                 <span id="modalClose" onclick="closeWeatherModal()">?</span>
                 <h2>Curious about the weather in ${city}?</h2>
-                <p class="weatherDetail"><span class="weatherQ">How warm is it?</span> <span class="weatherA">${weather.Temperature.Imperial.Value} °F</span></p>
+                <p class="weatherDetail"><span class="weatherQ">How warm is it?</span> <span class="weatherA">${weather.Temperature.Imperial.Value} ï¿½F</span></p>
                 <p class="weatherDetail"><span class="weatherQ">Is it raining?</span> <span class="weatherA">${weather.HasPrecipitation ? 'Yes! Grab an umbrella!' : 'Nope, all dry!'}</span></p>
                 <p class="weatherDetail"><span class="weatherQ">What's the sky status?</span> <span class="weatherA">${weather.WeatherText}</span></p>
                 <p class="weatherDetail"><span class="weatherQ">What else can you tell me?</span> <span class="weatherA"><a href="${weather.Link}" target="_blank">See more!</a></span></p>
