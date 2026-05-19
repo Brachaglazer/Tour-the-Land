@@ -65,6 +65,12 @@ function updateAuthUI() {
     }
 }
 
+let tripCache = [];
+
+function getTripById(tripId) {
+    return tripCache.find(trip => trip._id === tripId);
+}
+
 function handleJsonResponse(response) {
     return response.json().then((data) => {
         if (!response.ok) {
@@ -72,6 +78,26 @@ function handleJsonResponse(response) {
         }
         return data;
     });
+}
+
+function formatTripDate(dateValue) {
+    if (!dateValue) return '';
+    if (typeof dateValue === 'string') return dateValue;
+    if (dateValue instanceof Date) return dateValue.toLocaleDateString();
+    if (typeof dateValue === 'object') {
+        if (typeof dateValue.$date === 'string' || dateValue.$date instanceof Date) {
+            return formatTripDate(dateValue.$date);
+        }
+        if (typeof dateValue.value === 'string' || typeof dateValue.value === 'number') {
+            return formatTripDate(dateValue.value);
+        }
+        try {
+            return new Date(dateValue).toLocaleDateString();
+        } catch (error) {
+            return String(dateValue);
+        }
+    }
+    return String(dateValue);
 }
 
 async function loadCurrentUser() {
@@ -398,12 +424,62 @@ function addTrip() {
         });
 }
 
+function toggleActivityForm(tripId) {
+    const form = document.getElementById(`activityForm-${tripId}`);
+    if (!form) return;
+    form.classList.toggle('hide');
+}
+
+function submitActivity(tripId) {
+    const titleInput = document.getElementById(`activityTitle-${tripId}`);
+    const timeInput = document.getElementById(`activityTime-${tripId}`);
+    const descriptionInput = document.getElementById(`activityDesc-${tripId}`);
+    const feedback = document.getElementById(`activityFeedback-${tripId}`);
+
+    if (!titleInput || !feedback) return;
+
+    const title = titleInput.value.trim();
+    const time = timeInput?.value.trim() || '';
+    const description = descriptionInput?.value.trim() || '';
+
+    if (!title) {
+        feedback.style.display = 'block';
+        feedback.className = 'activity-feedback error';
+        feedback.innerText = 'Activity title is required.';
+        return;
+    }
+
+    fetch(`${apiBase}/trips/addActivity/${tripId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + getAuthToken()
+        },
+        body: JSON.stringify({ title, time, description })
+    })
+        .then(handleJsonResponse)
+        .then(() => {
+            feedback.style.display = 'block';
+            feedback.className = 'activity-feedback success';
+            feedback.innerText = 'Activity added!';
+            titleInput.value = '';
+            if (timeInput) timeInput.value = '';
+            if (descriptionInput) descriptionInput.value = '';
+            renderTrips();
+        })
+        .catch((error) => {
+            feedback.style.display = 'block';
+            feedback.className = 'activity-feedback error';
+            feedback.innerText = error?.message || 'Failed to add activity. Try again later.';
+        });
+}
+
 function showWeather() {
-    const city = document.getElementById('tripLocation').value.trim();
+    const city = document.getElementById('tripLocation')?.value.trim();
     const modal = document.getElementById('weatherModal');
     const overlay = document.getElementById('weatherModalOverlay');
 
-    if (!city) return;
+    if (!city || !modal || !overlay) return;
 
     function renderWeatherModal(content) {
         overlay.style.display = 'block';
@@ -423,7 +499,7 @@ function showWeather() {
             renderWeatherModal(`
                 <span id="modalClose" onclick="closeWeatherModal()">?</span>
                 <h2>Curious about the weather in ${city}?</h2>
-                <p class="weatherDetail"><span class="weatherQ">How warm is it?</span> <span class="weatherA">${weather.Temperature.Imperial.Value} �F</span></p>
+                <p class="weatherDetail"><span class="weatherQ">How warm is it?</span> <span class="weatherA">${weather.Temperature.Imperial.Value} °F</span></p>
                 <p class="weatherDetail"><span class="weatherQ">Is it raining?</span> <span class="weatherA">${weather.HasPrecipitation ? 'Yes! Grab an umbrella!' : 'Nope, all dry!'}</span></p>
                 <p class="weatherDetail"><span class="weatherQ">What's the sky status?</span> <span class="weatherA">${weather.WeatherText}</span></p>
                 <p class="weatherDetail"><span class="weatherQ">What else can you tell me?</span> <span class="weatherA"><a href="${weather.Link}" target="_blank">See more!</a></span></p>
@@ -461,23 +537,422 @@ function renderTrips() {
     })
         .then(handleJsonResponse)
         .then(trips => {
+            tripCache = trips;
+
             if (!trips.length) {
                 tripsList.innerHTML = '<p class="no-trips">No trips yet. Begin planning your first!</p>';
                 return;
             }
 
-            tripsList.innerHTML = trips.map((trip, index) => `
-                <article class="trip-card" style="animation-delay: ${index * 0.08}s;">
-                    <div class="trip-meta">
-                        <strong>${trip.title}</strong>
-                        <span>${trip.start_date} - ${trip.end_date}</span>
-                    </div>
-                    <p>${trip.description}</p>
-                </article>
-            `).join('');
+            tripsList.innerHTML = trips.map((trip, index) => {
+                const activities = Array.isArray(trip.activities) ? trip.activities : [];
+                const canEdit = trip.role !== 'viewer';
+                const canShare = trip.role === 'owner' || trip.role === 'editor';
+                const manageFriendsVisible = trip.participants?.length > 1 && canShare;
+                const roleLabel = trip.role ? trip.role.charAt(0).toUpperCase() + trip.role.slice(1) : 'Owner';
+                const statusLabel = trip.role === 'owner' ? 'Creator' : trip.role === 'editor' ? 'Editor' : 'Viewer';
+
+                const activitiesHtml = activities.length ? activities.map((activity, activityIndex) => `
+                    <article class="activity-card">
+                        <div class="activity-header">
+                            ${activity.time ? `<span class="activity-time">${activity.time}</span><span class="activity-separator">-</span>` : ''}
+                            <span class="activity-title">${activity.title}</span>
+                        </div>
+                        ${activity.description ? `<p class="activity-description">${activity.description}</p>` : ''}
+                        <div class="activity-actions">
+                            ${canEdit ? `<button type="button" class="btn btn-secondary small reorder-btn" onclick="reorderActivity('${trip._id}','${activity.activityId}','up')">↑</button>` : ''}
+                            ${canEdit ? `<button type="button" class="btn btn-secondary small reorder-btn" onclick="reorderActivity('${trip._id}','${activity.activityId}','down')">↓</button>` : ''}
+                            ${canEdit ? `<button type="button" class="btn btn-secondary small" onclick="toggleActivityEditForm('${trip._id}','${activity.activityId}')">Edit</button>` : ''}
+                            ${canEdit ? `<button type="button" class="btn btn-secondary small btn-danger" onclick="deleteActivity('${trip._id}','${activity.activityId}')">Delete</button>` : ''}
+                        </div>
+                        <div id="activityEditForm-${trip._id}-${activity.activityId}" class="activity-form hide">
+                            <label for="activityEditTitle-${trip._id}-${activity.activityId}">Activity title *</label>
+                            <input id="activityEditTitle-${trip._id}-${activity.activityId}" type="text" value="${activity.title}" placeholder="Activity title">
+                            <label for="activityEditTime-${trip._id}-${activity.activityId}">Time</label>
+                            <input id="activityEditTime-${trip._id}-${activity.activityId}" type="text" value="${activity.time || ''}" placeholder="Ex: 10:00 AM or afternoon">
+                            <label for="activityEditDesc-${trip._id}-${activity.activityId}">Description</label>
+                            <textarea id="activityEditDesc-${trip._id}-${activity.activityId}" placeholder="Optional details">${activity.description || ''}</textarea>
+                            <button type="button" class="btn btn-secondary small" onclick="saveActivity('${trip._id}','${activity.activityId}')">Save</button>
+                            <button type="button" class="btn btn-secondary small" onclick="toggleActivityEditForm('${trip._id}','${activity.activityId}')">Cancel</button>
+                            <div id="activityEditFeedback-${trip._id}-${activity.activityId}" class="activity-feedback"></div>
+                        </div>
+                    </article>
+                `).join('') : '<p class="no-activities">No activities yet. Add one for this trip.</p>';
+
+                return `
+                    <article class="trip-card" style="animation-delay: ${index * 0.08}s;">
+                        <div class="trip-meta">
+                            <div>
+                                <strong>${trip.title}</strong>
+                                <p class="trip-date">${formatTripDate(trip.start_date) || 'TBD'} - ${formatTripDate(trip.end_date) || 'TBD'}</p>
+                            </div>
+                            <span class="role-badge ${trip.role}">${statusLabel}</span>
+                        </div>
+                        <p>${trip.description}</p>
+
+                        <div class="trip-actions">
+                            ${canEdit ? `<button type="button" class="btn btn-secondary small" onclick="toggleTripEditForm('${trip._id}')">Edit Trip</button>` : ''}
+                            <button type="button" class="btn btn-secondary small btn-danger" onclick="deleteTrip('${trip._id}')">${trip.role === 'owner' ? 'Delete Trip' : 'Leave Trip'}</button>
+                            ${canShare ? `<button type="button" class="btn btn-secondary small" onclick="openShareModal('${trip._id}')">Share</button>` : ''}
+                            ${manageFriendsVisible ? `<button type="button" class="btn btn-secondary small" onclick="openManageFriendsModal('${trip._id}')">Manage Friends</button>` : ''}
+                        </div>
+
+                        <div id="tripEditForm-${trip._id}" class="trip-edit-form hide">
+                            <label for="editTripTitle-${trip._id}">Location *</label>
+                            <input id="editTripTitle-${trip._id}" type="text" value="${trip.title}" placeholder="Trip location">
+                            <label for="editTripDesc-${trip._id}">Description *</label>
+                            <textarea id="editTripDesc-${trip._id}" placeholder="Trip description">${trip.description}</textarea>
+                            <label for="editTripStart-${trip._id}">Start date</label>
+                            <input id="editTripStart-${trip._id}" type="text" value="${formatTripDate(trip.start_date)}" placeholder="Start date">
+                            <label for="editTripEnd-${trip._id}">End date</label>
+                            <input id="editTripEnd-${trip._id}" type="text" value="${formatTripDate(trip.end_date)}" placeholder="End date">
+                            <button type="button" class="btn btn-secondary small" onclick="saveTrip('${trip._id}')">Save Changes</button>
+                            <button type="button" class="btn btn-secondary small" onclick="toggleTripEditForm('${trip._id}')">Cancel</button>
+                            <div id="tripEditFeedback-${trip._id}" class="activity-feedback"></div>
+                        </div>
+
+                        <section class="activity-section">
+                            <div class="activity-heading">
+                                <h3>Activities</h3>
+                                ${canEdit ? `<button type="button" class="btn btn-secondary small" onclick="toggleActivityForm('${trip._id}')">+ Add Activity</button>` : ''}
+                            </div>
+                            <div class="activity-list">
+                                ${activitiesHtml}
+                            </div>
+                            ${canEdit ? `<div id="activityForm-${trip._id}" class="activity-form hide">
+                                <label for="activityTitle-${trip._id}">Activity title *</label>
+                                <input id="activityTitle-${trip._id}" type="text" placeholder="Enter activity title">
+                                <label for="activityTime-${trip._id}">Time</label>
+                                <input id="activityTime-${trip._id}" type="text" placeholder="Ex: 10:00 AM or afternoon">
+                                <label for="activityDesc-${trip._id}">Description</label>
+                                <textarea id="activityDesc-${trip._id}" placeholder="Optional details"></textarea>
+                                <button type="button" class="btn btn-secondary" onclick="submitActivity('${trip._id}')">Add Activity</button>
+                                <div id="activityFeedback-${trip._id}" class="activity-feedback"></div>
+                            </div>` : ''}
+                        </section>
+                    </article>
+                `;
+            }).join('');
         })
         .catch(() => {
             tripsList.innerHTML = '<p class="no-trips">Failed to load trips. Try again later.</p>';
+        });
+}
+
+function openShareModal(tripId) {
+    const trip = getTripById(tripId);
+    const overlay = document.getElementById('tripModalOverlay');
+    const modal = document.getElementById('tripModal');
+    if (!trip || !overlay || !modal) return;
+
+    modal.innerHTML = `
+        <div class="modal-header">
+            <h2>Share "${trip.title}"</h2>
+            <button type="button" class="modal-close" onclick="closeTripModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-row">
+                <label for="shareEmail">Email</label>
+                <input id="shareEmail" type="email" placeholder="friend@example.com">
+            </div>
+            <div class="modal-row">
+                <label for="shareRole">Access</label>
+                <select id="shareRole">
+                    <option value="viewer">Read-only</option>
+                    <option value="editor">Edit</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="downloadTrip('${tripId}')">Download</button>
+                <button type="button" class="btn btn-secondary" onclick="shareTrip('${tripId}')">Share with a friend</button>
+            </div>
+            <div id="shareFeedback" class="activity-feedback"></div>
+        </div>
+    `;
+    overlay.classList.remove('hide');
+}
+
+function openManageFriendsModal(tripId) {
+    const trip = getTripById(tripId);
+    const overlay = document.getElementById('tripModalOverlay');
+    const modal = document.getElementById('tripModal');
+    if (!trip || !overlay || !modal) return;
+
+    fetch(`${apiBase}/tripUsers/${tripId}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + getAuthToken()
+        }
+    })
+        .then(handleJsonResponse)
+        .then(users => {
+            const participantRows = users.map(user => `
+                <div class="participant-row">
+                    <div>
+                        <strong>${user.first_name || 'Unknown'} ${user.last_name || ''}</strong>
+                        <p>${user.email || user.user_id}</p>
+                    </div>
+                    <span class="role-badge ${user.role}">${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</span>
+                    ${user.user_id !== getUserId() ? `<button type="button" class="btn btn-danger small" onclick="removeFriend('${user.tripUserId}','${tripId}')">Remove</button>` : ''}
+                </div>
+            `).join('');
+
+            modal.innerHTML = `
+                <div class="modal-header">
+                    <h2>Manage Friends for "${trip.title}"</h2>
+                    <button type="button" class="modal-close" onclick="closeTripModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="section-title">Current Collaborators</div>
+                    <div class="participant-list">${participantRows}</div>
+                    <div class="section-title">Add someone new</div>
+                    <div class="modal-row">
+                        <label for="shareEmail">Email</label>
+                        <input id="shareEmail" type="email" placeholder="friend@example.com">
+                    </div>
+                    <div class="modal-row">
+                        <label for="shareRole">Access</label>
+                        <select id="shareRole">
+                            <option value="viewer">Read-only</option>
+                            <option value="editor">Edit</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="shareTrip('${tripId}')">Add / Update Friend</button>
+                    </div>
+                    <div id="shareFeedback" class="activity-feedback"></div>
+                </div>
+            `;
+            overlay.classList.remove('hide');
+        })
+        .catch(() => {
+            alert('Failed to load participants. Please try again later.');
+        });
+}
+
+function closeTripModal() {
+    const overlay = document.getElementById('tripModalOverlay');
+    const modal = document.getElementById('tripModal');
+    if (overlay) overlay.classList.add('hide');
+    if (modal) modal.innerHTML = '';
+}
+
+function shareTrip(tripId) {
+    const emailInput = document.getElementById('shareEmail');
+    const roleInput = document.getElementById('shareRole');
+    const feedback = document.getElementById('shareFeedback');
+    if (!emailInput || !roleInput || !feedback) return;
+
+    const email = emailInput.value.trim();
+    const role = roleInput.value;
+    if (!email) {
+        feedback.style.display = 'block';
+        feedback.className = 'activity-feedback error';
+        feedback.innerText = 'Please enter an email address.';
+        return;
+    }
+
+    fetch(`${apiBase}/trips/share/${tripId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + getAuthToken()
+        },
+        body: JSON.stringify({ email, role })
+    })
+        .then(handleJsonResponse)
+        .then(() => {
+            feedback.style.display = 'block';
+            feedback.className = 'activity-feedback success';
+            feedback.innerText = 'Trip shared successfully.';
+            renderTrips();
+        })
+        .catch((error) => {
+            feedback.style.display = 'block';
+            feedback.className = 'activity-feedback error';
+            feedback.innerText = error?.message || 'Failed to share trip. Try again later.';
+        });
+}
+
+function downloadTrip(tripId) {
+    const trip = getTripById(tripId);
+    if (!trip) return;
+
+    const blob = new Blob([JSON.stringify(trip, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${trip.title.replace(/\s+/g, '_')}_trip.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function reorderActivity(tripId, activityId, direction) {
+    fetch(`${apiBase}/trips/reorderActivity/${tripId}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + getAuthToken()
+        },
+        body: JSON.stringify({ activityId, direction })
+    })
+        .then(handleJsonResponse)
+        .then(() => {
+            renderTrips();
+        })
+        .catch((error) => {
+            alert(error?.message || 'Failed to reorder activity.');
+        });
+}
+
+function removeFriend(tripUserId, tripId) {
+    fetch(`${apiBase}/tripUsers/deleteTripUser/${tripUserId}`, {
+        method: 'DELETE',
+        headers: {
+            Authorization: 'Bearer ' + getAuthToken()
+        }
+    })
+        .then(handleJsonResponse)
+        .then(() => {
+            renderTrips();
+            openManageFriendsModal(tripId);
+        })
+        .catch((error) => {
+            alert(error?.message || 'Failed to remove friend.');
+        });
+}
+
+function toggleTripEditForm(tripId) {
+    const form = document.getElementById(`tripEditForm-${tripId}`);
+    if (!form) return;
+    form.classList.toggle('hide');
+}
+
+function saveTrip(tripId) {
+    const titleInput = document.getElementById(`editTripTitle-${tripId}`);
+    const descInput = document.getElementById(`editTripDesc-${tripId}`);
+    const startInput = document.getElementById(`editTripStart-${tripId}`);
+    const endInput = document.getElementById(`editTripEnd-${tripId}`);
+    const feedback = document.getElementById(`tripEditFeedback-${tripId}`);
+
+    if (!titleInput || !descInput || !feedback) return;
+
+    const title = titleInput.value.trim();
+    const description = descInput.value.trim();
+    const start_date = startInput?.value.trim() || '';
+    const end_date = endInput?.value.trim() || '';
+
+    if (!title || !description) {
+        feedback.style.display = 'block';
+        feedback.className = 'activity-feedback error';
+        feedback.innerText = 'Title and description are required to save the trip.';
+        return;
+    }
+
+    fetch(`${apiBase}/trips/updateTrip/${tripId}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + getAuthToken()
+        },
+        body: JSON.stringify({ title, description, start_date, end_date })
+    })
+        .then(handleJsonResponse)
+        .then(() => {
+            feedback.style.display = 'block';
+            feedback.className = 'activity-feedback success';
+            feedback.innerText = 'Trip updated successfully.';
+            toggleTripEditForm(tripId);
+            renderTrips();
+        })
+        .catch((error) => {
+            feedback.style.display = 'block';
+            feedback.className = 'activity-feedback error';
+            feedback.innerText = error?.message || 'Failed to update trip. Try again later.';
+        });
+}
+
+function deleteTrip(tripId) {
+    if (!confirm('Delete this trip and all its activities?')) return;
+
+    fetch(`${apiBase}/trips/deleteTrip/${tripId}`, {
+        method: 'DELETE',
+        headers: {
+            Authorization: 'Bearer ' + getAuthToken()
+        }
+    })
+        .then(handleJsonResponse)
+        .then(() => {
+            renderTrips();
+        })
+        .catch((error) => {
+            alert(error?.message || 'Failed to delete trip. Try again later.');
+        });
+}
+
+function toggleActivityEditForm(tripId, activityId) {
+    const form = document.getElementById(`activityEditForm-${tripId}-${activityId}`);
+    if (!form) return;
+    form.classList.toggle('hide');
+}
+
+function saveActivity(tripId, activityId) {
+    const titleInput = document.getElementById(`activityEditTitle-${tripId}-${activityId}`);
+    const timeInput = document.getElementById(`activityEditTime-${tripId}-${activityId}`);
+    const descInput = document.getElementById(`activityEditDesc-${tripId}-${activityId}`);
+    const feedback = document.getElementById(`activityEditFeedback-${tripId}-${activityId}`);
+
+    if (!titleInput || !feedback) return;
+
+    const title = titleInput.value.trim();
+    const time = timeInput?.value.trim() || '';
+    const description = descInput?.value.trim() || '';
+
+    if (!title) {
+        feedback.style.display = 'block';
+        feedback.className = 'activity-feedback error';
+        feedback.innerText = 'Activity title is required.';
+        return;
+    }
+
+    fetch(`${apiBase}/trips/updateActivity/${tripId}/${activityId}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + getAuthToken()
+        },
+        body: JSON.stringify({ title, time, description })
+    })
+        .then(handleJsonResponse)
+        .then(() => {
+            feedback.style.display = 'block';
+            feedback.className = 'activity-feedback success';
+            feedback.innerText = 'Activity updated successfully.';
+            toggleActivityEditForm(tripId, activityId);
+            renderTrips();
+        })
+        .catch((error) => {
+            feedback.style.display = 'block';
+            feedback.className = 'activity-feedback error';
+            feedback.innerText = error?.message || 'Failed to update activity. Try again later.';
+        });
+}
+
+function deleteActivity(tripId, activityId) {
+    if (!confirm('Remove this activity from the trip?')) return;
+
+    fetch(`${apiBase}/trips/deleteActivity/${tripId}/${activityId}`, {
+        method: 'DELETE',
+        headers: {
+            Authorization: 'Bearer ' + getAuthToken()
+        }
+    })
+        .then(handleJsonResponse)
+        .then(() => {
+            renderTrips();
+        })
+        .catch((error) => {
+            alert(error?.message || 'Failed to delete activity. Try again later.');
         });
 }
 
@@ -506,7 +981,7 @@ function reviewSuggestions() {
                 <article class="trip-card" style="animation-delay: ${index * 0.08}s;">
                     <div class="trip-meta">
                         <strong>${trip.title}</strong>
-                        <span>${trip.start_date} - ${trip.end_date}</span>
+                        <span>${formatTripDate(trip.start_date) || 'TBD'} - ${formatTripDate(trip.end_date) || 'TBD'}</span>
                         <span><a class="btn" href="/views/reviews.html">Write Review</a></span>
                     </div>
                 </article>

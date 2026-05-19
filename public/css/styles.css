@@ -293,8 +293,259 @@ h2 {
     border-radius: 18px;
 }
 
+.activity-section {
+    margin-top: 1.5rem;
+}
+
+.activity-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.activity-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.trip-actions,
+.activity-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.trip-edit-form {
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(204, 227, 222, 0.95);
+    border-radius: 22px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.trip-edit-form label,
+.activity-form label {
+    display: block;
+    margin-top: 1rem;
+    color: #3f5e67;
+}
+
+.btn-danger {
+    background: #ffebe6;
+    color: #a93f38;
+    border-color: rgba(169, 63, 56, 0.2);
+}
+
+.btn-danger:hover {
+    background: #ffd9cc;
+}
+
+.activity-card {
+    background: rgba(249, 253, 251, 0.95);
+    border: 1px solid rgba(204, 227, 222, 0.95);
+    border-radius: 20px;
+    padding: 1rem;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.05);
+}
+
+.activity-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.activity-time {
+    color: #4a7f6f;
+}
+
+.activity-separator {
+    color: #4a7f6f;
+}
+
+.activity-description {
+    margin-top: 0.65rem;
+    color: #4f6b7a;
+    line-height: 1.6;
+}
+
+.activity-form {
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(204, 227, 222, 0.95);
+    border-radius: 22px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.activity-form label {
+    display: block;
+    margin-top: 1rem;
+    color: #3f5e67;
+}
+
+.activity-form input,
+.activity-form textarea {
+    width: 100%;
+    margin-top: 0.45rem;
+    padding: 0.95rem 1rem;
+    border-radius: 16px;
+    border: 1px solid rgba(120,160,150,0.35);
+    background: #f7fbfa;
+    font-size: 0.95rem;
+}
+
+.activity-form textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.activity-feedback {
+    margin-top: 0.85rem;
+    font-size: 0.95rem;
+    display: none;
+}
+
+.activity-feedback.success {
+    color: #1d7f53;
+}
+
+.activity-feedback.error {
+    color: #b63636;
+}
+
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    background: #f8cfcf;
+}
+
+.role-badge.editor {
+    background: #cadddf;
+}
+
+.role-badge.viewer {
+    background: #bfbfbf;
+}
+
+.role-badge.creator,
+.role-badge.owner {
+    background: #f6d7d7;
+}
+
+.reorder-btn {
+    min-width: 48px;
+}
+
+.modal-card {
+    width: min(680px, calc(100% - 2rem));
+    background: rgba(255,255,255,0.98);
+    border-radius: 22px;
+    padding: 1.5rem;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.18);
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#tripModalOverlay {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(16, 28, 38, 0.55);
+    z-index: 1200;
+}
+
+#tripModalOverlay.hide {
+    display: none;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.modal-close {
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--primary);
+}
+
+.modal-body {
+    display: grid;
+    gap: 1rem;
+}
+
+.modal-row {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.participant-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.95rem 1rem;
+    border-radius: 16px;
+    background: rgba(242, 248, 248, 0.95);
+    border: 1px solid rgba(204, 227, 222, 0.9);
+}
+
+.participant-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.btn-secondary {
+    background: #eef7f4;
+    color: #2f5e54;
+    border: 1px solid rgba(47,94,84,0.15);
+}
+
+.btn-secondary:hover {
+    background: #def0e8;
+}
+
+.small {
+    padding: 0.65rem 0.9rem;
+    font-size: 0.9rem;
+}
+
+.hide {
+    display: none !important;
+}
+
 .intro {
-    max-width: 800px;
     margin: 0 auto 1.5rem;
     color: #4f6b7a;
     font-size: 1rem;
