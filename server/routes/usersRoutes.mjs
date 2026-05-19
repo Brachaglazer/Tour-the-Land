@@ -50,10 +50,14 @@ router.post('/login', async (req, res) => {
 
     if (user && await bcrypt.compare(password, user.hashedPassword)) {
         const token = jwt.sign({ userId: user._id }, jwtSecret, { expiresIn: '1h' });
-        res.json({ token, first_name: user.first_name, last_name: user.last_name, id: user._id });
+        res.json({ token, first_name: user.first_name, last_name: user.last_name, id: user._id, message: 'Logged in successfully' });
     } else {
         res.status(401).json({ message: 'Invalid credentials' });
     }
+});
+
+router.post('/logout', async (_req, res) => {
+    res.json({ message: 'Logged out successfully' });
 });
 
 router.get('/me', authenticate, async (req, res) => {

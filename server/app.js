@@ -1,8 +1,16 @@
-import "dotenv/config";
+import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const envPath = path.resolve(__dirname, "../.env");
+dotenv.config({ path: envPath });
+console.log(`Loaded env from ${envPath}`);
+console.log(`EMAIL_USER ${process.env.EMAIL_USER ? 'present' : 'missing'}, EMAIL_PASS ${process.env.EMAIL_PASS ? 'present' : 'missing'}`);
 
 import usersRoutes from "./routes/usersRoutes.mjs";
 import contactsRoutes from "./routes/contactsRoutes.mjs";
@@ -17,8 +25,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.warn("Warning: EMAIL_USER or EMAIL_PASS is not configured in the loaded .env file.");
+}
 
 app.use(express.static(path.join(__dirname, "../public")));
 app.use("/users", usersRoutes);
