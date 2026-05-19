@@ -537,6 +537,7 @@ function renderTrips() {
         .then(handleJsonResponse)
         .then(trips => {
             tripCache = trips;
+            renderTripSidebar(trips);
 
             if (!trips.length) {
                 tripsList.innerHTML = '<p class="no-trips">No trips yet. Begin planning your first!</p>';
@@ -579,7 +580,7 @@ function renderTrips() {
                 `).join('') : '<p class="no-activities">No activities yet. Add one for this trip.</p>';
 
                 return `
-                    <article class="trip-card" style="animation-delay: ${index * 0.08}s;">
+                    <article id="tripCard-${trip._id}" class="trip-card" style="animation-delay: ${index * 0.08}s;">
                         <div class="trip-meta">
                             <div>
                                 <strong>${trip.title}</strong>
@@ -610,10 +611,16 @@ function renderTrips() {
                             <div id="tripEditFeedback-${trip._id}" class="activity-feedback"></div>
                         </div>
 
-                        <section class="activity-section">
+                        <section class="activity-section" id="activitySection-${trip._id}">
                             <div class="activity-heading">
-                                <h3>Activities</h3>
-                                ${canEdit ? `<button type="button" class="btn btn-secondary small" onclick="toggleActivityForm('${trip._id}')">+ Add Activity</button>` : ''}
+                                <div>
+                                    <h3>Activities</h3>
+                                    <p class="activity-summary">${activities.length} planned</p>
+                                </div>
+                                <div class="activity-heading-actions">
+                                    <button type="button" class="btn btn-secondary small" id="activityToggleBtn-${trip._id}" onclick="toggleTripActivities('${trip._id}')">Hide activities</button>
+                                    ${canEdit ? `<button type="button" class="btn btn-secondary small" onclick="toggleActivityForm('${trip._id}')">+ Add Activity</button>` : ''}
+                                </div>
                             </div>
                             <div class="activity-list">
                                 ${activitiesHtml}
@@ -806,7 +813,11 @@ function addSampleTrip(sampleId) {
                 feedback.innerText = `Added "${sample.title}" to your trips. You can edit and share it anytime.`;
             }
             closeTripModal();
-            renderTrips();
+            if (window.location.pathname.includes('/views/index.html') || window.location.pathname === '/index.html' || window.location.pathname === '/' ) {
+                window.location.href = '/views/trips.html';
+            } else {
+                renderTrips();
+            }
         })
         .catch((error) => {
             alert(error?.message || 'Failed to add the sample trip. Please try again.');
@@ -1021,6 +1032,65 @@ function saveActivity(tripId, activityId) {
         });
 }
 
+function renderTripSidebar(trips) {
+    const tripNavList = document.getElementById('tripNavList');
+    const searchQuery = document.getElementById('tripSearch')?.value.trim().toLowerCase() || '';
+    if (!tripNavList) return;
+
+    const filteredTrips = trips.filter(trip => {
+        const title = trip.title?.toLowerCase() || '';
+        const description = trip.description?.toLowerCase() || '';
+        return !searchQuery || title.includes(searchQuery) || description.includes(searchQuery);
+    });
+
+    if (!filteredTrips.length) {
+        tripNavList.innerHTML = '<p class="no-trips">No trips match your search.</p>';
+        return;
+    }
+
+    tripNavList.innerHTML = filteredTrips.map(trip => `
+        <button type="button" class="trip-nav-item" onclick="focusTrip('${trip._id}')">
+            <div>
+                <span class="trip-nav-title">${trip.title}</span>
+                <span class="trip-nav-subtitle">${formatTripDate(trip.start_date) || 'TBD'} — ${formatTripDate(trip.end_date) || 'TBD'}</span>
+            </div>
+            <span class="trip-nav-cta">View</span>
+        </button>
+    `).join('');
+}
+
+function filterTripSidebar() {
+    renderTripSidebar(tripCache);
+}
+
+function toggleTripActivities(tripId) {
+    const section = document.getElementById(`activitySection-${tripId}`);
+    const button = document.getElementById(`activityToggleBtn-${tripId}`);
+    if (!section || !button) return;
+
+    const isCollapsed = section.classList.toggle('collapsed');
+    button.textContent = isCollapsed ? 'Show activities' : 'Hide activities';
+}
+
+function expandTripActivities(tripId) {
+    const section = document.getElementById(`activitySection-${tripId}`);
+    const button = document.getElementById(`activityToggleBtn-${tripId}`);
+    if (!section) return;
+    section.classList.remove('collapsed');
+    if (button) button.textContent = 'Hide activities';
+}
+
+function focusTrip(tripId) {
+    expandTripActivities(tripId);
+    const tripCard = document.getElementById(`tripCard-${tripId}`);
+    if (!tripCard) return;
+    tripCard.style.animation = 'none';
+    tripCard.style.opacity = '1';
+    tripCard.scrollIntoView({ behavior: 'auto', block: 'start' });
+    tripCard.classList.add('highlighted');
+    setTimeout(() => tripCard.classList.remove('highlighted'), 2000);
+}
+
 function deleteActivity(tripId, activityId) {
     if (!confirm('Remove this activity from the trip?')) return;
 
@@ -1083,5 +1153,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderReviews();
     renderTrips();
     reviewSuggestions();
-    addSuggestTrip()
+    addSuggestTrip();
+    const tripSearch = document.getElementById('tripSearch');
+    if (tripSearch) {
+        tripSearch.addEventListener('input', filterTripSidebar);
+    }
 });
