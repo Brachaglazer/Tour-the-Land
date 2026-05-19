@@ -30,10 +30,51 @@ async function authenticate(req, res, next) {
     }
 }
 
+async function getMembershipForUser(tripId, userId) {
+    const collection = await db.collection("trip_users");
+    return await collection.findOne({
+        trip_id: new ObjectId(tripId),
+        user_id: String(userId)
+    });
+}
+
+async function getTripsForUser(userId) {
+    const tripUsersCollection = await db.collection("trip_users");
+    const memberships = await tripUsersCollection.find({ user_id: String(userId) }).toArray();
+    if (!memberships.length) return [];
+
+    const tripIds = memberships.map(m => new ObjectId(m.trip_id));
+    const tripsCollection = await db.collection("trips");
+    const trips = await tripsCollection.find({ _id: { $in: tripIds } }).toArray();
+
+    const allMembers = await tripUsersCollection.find({ trip_id: { $in: tripIds } }).toArray();
+
+    const participantsByTrip = {};
+    allMembers.forEach(member => {
+        const key = String(member.trip_id);
+        if (!participantsByTrip[key]) {
+            participantsByTrip[key] = [];
+        }
+        participantsByTrip[key].push({
+            user_id: String(member.user_id),
+            role: member.role,
+            tripUserId: member._id?.toString()
+        });
+    });
+
+    return trips.map(trip => {
+        const membership = memberships.find(m => String(m.trip_id) === String(trip._id));
+        return {
+            ...trip,
+            role: membership?.role || (String(trip.user_id) === String(userId) ? 'owner' : 'viewer'),
+            membershipId: membership?._id?.toString(),
+            participants: participantsByTrip[String(trip._id)] || []
+        };
+    });
+}
+
 router.get("/:id", authenticate, async (req, res) => {
-    let collection = await db.collection("trips");
-    let query = { user_id: req.params.id };
-    let results = await collection.find(query).toArray();
+    let results = await getTripsForUser(req.params.id);
     res.status(200).json(results);
 });
 
@@ -78,9 +119,8 @@ router.post('/addActivity/:id', authenticate, async (req, res) => {
         return res.status(404).json({ message: 'Trip not found.' });
     }
 
-    const userId = String(req.user.userId);
-    const tripOwner = String(trip.user_id);
-    if (tripOwner !== userId) {
+    const membership = await getMembershipForUser(tripId, req.user.userId);
+    if (!membership || membership.role === 'viewer') {
         return res.status(403).json({ message: 'You are not authorized to add activities to this trip.' });
     }
 
@@ -109,7 +149,8 @@ router.patch('/updateTrip/:id', authenticate, async (req, res) => {
         return res.status(404).json({ message: 'Trip not found.' });
     }
 
-    if (String(trip.user_id) !== String(req.user.userId)) {
+    const membership = await getMembershipForUser(tripId, req.user.userId);
+    if (!membership || (membership.role === 'viewer')) {
         return res.status(403).json({ message: 'You are not authorized to update this trip.' });
     }
 
@@ -140,7 +181,8 @@ router.patch('/updateActivity/:tripId/:activityId', authenticate, async (req, re
         return res.status(404).json({ message: 'Trip not found.' });
     }
 
-    if (String(trip.user_id) !== String(req.user.userId)) {
+    const membership = await getMembershipForUser(tripId, req.user.userId);
+    if (!membership || membership.role === 'viewer') {
         return res.status(403).json({ message: 'You are not authorized to update activities for this trip.' });
     }
 
@@ -171,7 +213,8 @@ router.delete('/deleteActivity/:tripId/:activityId', authenticate, async (req, r
         return res.status(404).json({ message: 'Trip not found.' });
     }
 
-    if (String(trip.user_id) !== String(req.user.userId)) {
+    const membership = await getMembershipForUser(tripId, req.user.userId);
+    if (!membership || membership.role === 'viewer') {
         return res.status(403).json({ message: 'You are not authorized to delete activities for this trip.' });
     }
 
@@ -187,6 +230,90 @@ router.delete('/deleteActivity/:tripId/:activityId', authenticate, async (req, r
     res.json({ message: 'Activity deleted successfully' });
 });
 
+router.patch('/reorderActivity/:tripId', authenticate, async (req, res) => {
+    const { tripId } = req.params;
+    const { activityId, direction } = req.body;
+
+    if (!activityId || !['up', 'down'].includes(direction)) {
+        return res.status(400).json({ message: 'Invalid reorder request.' });
+    }
+
+    const collection = await db.collection("trips");
+    const trip = await collection.findOne({ _id: new ObjectId(tripId) });
+
+    if (!trip) {
+        return res.status(404).json({ message: 'Trip not found.' });
+    }
+
+    const membership = await getMembershipForUser(tripId, req.user.userId);
+    if (!membership || membership.role === 'viewer') {
+        return res.status(403).json({ message: 'You are not authorized to reorder activities on this trip.' });
+    }
+
+    const index = trip.activities.findIndex(activity => activity.activityId === activityId);
+    if (index === -1) {
+        return res.status(404).json({ message: 'Activity not found.' });
+    }
+
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= trip.activities.length) {
+        return res.status(200).json({ message: 'Activity order unchanged.', activities: trip.activities });
+    }
+
+    const activities = [...trip.activities];
+    [activities[index], activities[swapIndex]] = [activities[swapIndex], activities[index]];
+
+    await collection.updateOne({ _id: new ObjectId(tripId) }, { $set: { activities } });
+
+    res.json({ message: 'Activity reordered successfully', activities });
+});
+
+router.post('/share/:id', authenticate, async (req, res) => {
+    const tripId = req.params.id;
+    const { email, role } = req.body;
+
+    if (!email || !['editor', 'viewer'].includes(role)) {
+        return res.status(400).json({ message: 'A valid email and role are required.' });
+    }
+
+    const tripCollection = await db.collection("trips");
+    const trip = await tripCollection.findOne({ _id: new ObjectId(tripId) });
+    if (!trip) {
+        return res.status(404).json({ message: 'Trip not found.' });
+    }
+
+    const membership = await getMembershipForUser(tripId, req.user.userId);
+    if (!membership || membership.role === 'viewer') {
+        return res.status(403).json({ message: 'You are not authorized to share this trip.' });
+    }
+
+    const usersCollection = await db.collection("users");
+    const friend = await usersCollection.findOne({ email: email.trim().toLowerCase() });
+    if (!friend) {
+        return res.status(404).json({ message: 'Friend was not found. Ask them to register first.' });
+    }
+    if (String(friend._id) === String(req.user.userId)) {
+        return res.status(400).json({ message: 'You cannot share a trip with yourself.' });
+    }
+
+    const tripUsersCollection = await db.collection("trip_users");
+    const existing = await tripUsersCollection.findOne({ trip_id: new ObjectId(tripId), user_id: friend._id.toString() });
+    if (existing) {
+        await tripUsersCollection.updateOne({ _id: existing._id }, { $set: { role, invited_by: String(req.user.userId) } });
+        return res.json({ message: 'Share updated successfully', tripUserId: existing._id.toString() });
+    }
+
+    const result = await tripUsersCollection.insertOne({
+        trip_id: new ObjectId(tripId),
+        user_id: friend._id.toString(),
+        role,
+        invited_by: String(req.user.userId),
+        created_at: new Date().toLocaleDateString()
+    });
+
+    res.json({ message: 'Trip shared successfully', tripUserId: result.insertedId.toString() });
+});
+
 router.delete("/deleteTrip/:id", authenticate, async (req, res) => {
     const collection = db.collection("trips");
     const trip = await collection.findOne({ _id: new ObjectId(req.params.id) });
@@ -195,18 +322,43 @@ router.delete("/deleteTrip/:id", authenticate, async (req, res) => {
         return res.status(404).json({ message: 'Trip not found.' });
     }
 
-    if (String(trip.user_id) !== String(req.user.userId)) {
-        return res.status(403).json({ message: 'You are not authorized to delete this trip.' });
+    const membership = await getMembershipForUser(req.params.id, req.user.userId);
+    if (!membership) {
+        return res.status(403).json({ message: 'You are not authorized to remove this trip.' });
     }
 
-    const query = { _id: new ObjectId(req.params.id) };
-    let result = await collection.deleteOne(query);
-
     const userCollection = db.collection("trip_users");
-    const userQuery = { trip_id: new ObjectId(req.params.id) };
-    await userCollection.deleteMany(userQuery);
+    const tripOwnerId = String(trip.user_id);
+    const currentUserId = String(req.user.userId);
 
-    res.status(200).json(result);
+    if (membership.role !== 'owner') {
+        const deleteMembership = { _id: new ObjectId(membership._id) };
+        const result = await userCollection.deleteOne(deleteMembership);
+        return res.status(200).json({ message: 'Removed from shared trip successfully', removedCount: result.deletedCount });
+    }
+
+    const otherMembers = await userCollection.find({ trip_id: new ObjectId(req.params.id), user_id: { $ne: currentUserId } }).sort({ created_at: 1 }).toArray();
+    if (otherMembers.length === 0) {
+        const query = { _id: new ObjectId(req.params.id) };
+        let result = await collection.deleteOne(query);
+        await userCollection.deleteMany({ trip_id: new ObjectId(req.params.id) });
+        return res.status(200).json({ message: 'Trip deleted successfully', deletedCount: result.deletedCount });
+    }
+
+    const nextOwner = otherMembers[0];
+    await collection.updateOne(
+        { _id: new ObjectId(req.params.id) },
+        { $set: { user_id: nextOwner.user_id } }
+    );
+
+    await userCollection.updateOne(
+        { _id: new ObjectId(nextOwner._id) },
+        { $set: { role: 'owner' } }
+    );
+
+    await userCollection.deleteOne({ _id: new ObjectId(membership._id) });
+
+    res.status(200).json({ message: 'Trip ownership transferred and removed from your list.', transferredTo: nextOwner.user_id });
 });
 
 export default router;

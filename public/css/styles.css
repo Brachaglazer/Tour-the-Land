@@ -419,6 +419,113 @@ h2 {
     color: #b63636;
 }
 
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    background: #6bb0c4;
+}
+
+.role-badge.editor {
+    background: #4a8a5f;
+}
+
+.role-badge.viewer {
+    background: #7d7d7d;
+}
+
+.role-badge.creator,
+.role-badge.owner {
+    background: #2b5e7e;
+}
+
+.reorder-btn {
+    min-width: 48px;
+}
+
+.modal-card {
+    width: min(680px, calc(100% - 2rem));
+    background: rgba(255,255,255,0.98);
+    border-radius: 22px;
+    padding: 1.5rem;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.18);
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#tripModalOverlay {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(16, 28, 38, 0.55);
+    z-index: 1200;
+}
+
+#tripModalOverlay.hide {
+    display: none;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.modal-close {
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--primary);
+}
+
+.modal-body {
+    display: grid;
+    gap: 1rem;
+}
+
+.modal-row {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.participant-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.95rem 1rem;
+    border-radius: 16px;
+    background: rgba(242, 248, 248, 0.95);
+    border: 1px solid rgba(204, 227, 222, 0.9);
+}
+
+.participant-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
 .btn-secondary {
     background: #eef7f4;
     color: #2f5e54;

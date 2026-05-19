@@ -34,6 +34,7 @@ function authenticate(req, res, next) {
 router.post('/register', async (req, res) => {
     let collection = await db.collection("users");
     let { first_name, last_name, email, password } = req.body;
+    email = email.trim().toLowerCase();
     try {
         let hashedPassword = await bcrypt.hash(password, 10);
         let created_at = new Date().toLocaleDateString();
@@ -48,7 +49,8 @@ router.post('/register', async (req, res) => {
 // Login user
 router.post('/login', async (req, res) => {
     let collection = await db.collection("users");
-    const { email, password } = req.body;
+    const email = req.body.email.trim().toLowerCase();
+    const password = req.body.password;
     const user = await collection.findOne({ email });
 
     if (user && await bcrypt.compare(password, user.hashedPassword)) {
