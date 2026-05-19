@@ -504,6 +504,67 @@ h2 {
     margin-top: 0.75rem;
 }
 
+.sample-card {
+    border: 1px solid rgba(47, 94, 84, 0.14);
+    background: rgba(238, 247, 244, 0.85);
+    border-radius: 18px;
+    padding: 1rem 1.2rem;
+    display: grid;
+    gap: 1rem;
+}
+
+.sample-card-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.sample-card-header strong {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-size: 1.05rem;
+}
+
+.sample-card-header p {
+    margin: 0;
+    color: #3e5d63;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.sample-date {
+    white-space: nowrap;
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.sample-activities {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.sample-activity {
+    display: grid;
+    gap: 0.4rem;
+    padding: 0.85rem 1rem;
+    border-radius: 14px;
+    background: white;
+    border: 1px solid rgba(47, 94, 84, 0.08);
+}
+
+.sample-activity-time {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.sample-activity strong {
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
 .participant-row {
     display: flex;
     justify-content: space-between;
