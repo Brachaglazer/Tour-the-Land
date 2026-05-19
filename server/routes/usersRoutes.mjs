@@ -12,18 +12,21 @@ Users Routes:
 */
 
 const router = express.Router();
-const jwtSecret = process.env.JWT_SECRET || "tourtheland-secret";
+
+function getJwtSecret() {
+    return process.env.JWT_SECRET || "tourtheland-secret";
+}
 
 function authenticate(req, res, next) {
     const token = req?.headers?.authorization?.split(' ')[1];
     if (!token) return res.status(401).json({ message: 'No token provided.' });
 
     try {
-        const decoded = jwt.verify(token, jwtSecret);
+        const decoded = jwt.verify(token, getJwtSecret());
         req.user = decoded;
         next();
     } catch (error) {
-        return res.status(403).json({ message: 'Failed to authenticate token.' });
+        return res.status(403).json({ message: `Failed to authenticate token: ${error.message}` });
     }
 }
 
@@ -49,7 +52,7 @@ router.post('/login', async (req, res) => {
     const user = await collection.findOne({ email });
 
     if (user && await bcrypt.compare(password, user.hashedPassword)) {
-        const token = jwt.sign({ userId: user._id }, jwtSecret, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: user._id }, getJwtSecret(), { expiresIn: '1h' });
         res.json({ token, first_name: user.first_name, last_name: user.last_name, id: user._id, message: 'Logged in successfully' });
     } else {
         res.status(401).json({ message: 'Invalid credentials' });
