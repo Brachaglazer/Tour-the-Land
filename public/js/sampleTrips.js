@@ -1,4 +1,4 @@
-/* Shared sample trips used by index and trips pages */
+
 window.sampleTrips = [
     {
         id: 'yerushalayim-tour',
@@ -53,10 +53,8 @@ window.sampleTrips = [
     }
 ];
 
-// expose a helper to find by id
 window.getSampleTripById = function(id) {
     if (!id) return null;
-    // allow numeric ids 1/2/3 for backward compatibility
     if (!isNaN(Number(id))) {
         const idx = Number(id) - 1;
         return window.sampleTrips[idx] || null;

@@ -39,13 +39,10 @@ app.use("/tripUsers", tripUsersRoutes);
 app.use("/users", usersRoutes);
 app.use("/weather", weatherRoutes);
 
-// Global error handling
 app.use((err, _req, res, _next) => {
-  console.error(err);
   res.status(500).send("Uh oh! An unexpected error occurred.");
 });
 
-// start the Express server
 app.listen(PORT, () => {
-  console.log(`Server is running on port: ${PORT}`);
+  console.log(`server running on port ${PORT}`);
 });

@@ -30,7 +30,6 @@ function authenticate(req, res, next) {
     }
 }
 
-// Register user
 router.post('/register', async (req, res) => {
     let collection = await db.collection("users");
     let { first_name, last_name, email, password } = req.body;
@@ -46,7 +45,6 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Login user
 router.post('/login', async (req, res) => {
     let collection = await db.collection("users");
     const email = req.body.email.trim().toLowerCase();

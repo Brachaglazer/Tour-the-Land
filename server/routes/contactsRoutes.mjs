@@ -2,10 +2,6 @@ import express from "express";
 import nodemailer from "nodemailer";
 import db from "../conn.mjs";
 
-/*
-Contact Routes:
-/ : POST new contact
-*/
 
 const router = express.Router();
 
@@ -41,7 +37,6 @@ router.post('/', async (req, res) => {
                 await transporter.sendMail(mailOptions);
                 responseMessage = 'Contact sent successfully';
             } catch (error) {
-                console.error('Email send error:', error);
                 responseMessage = 'Contact saved; email delivery failed.';
             }
         }
@@ -51,7 +46,6 @@ router.post('/', async (req, res) => {
             contactId: result.insertedId
         });
     } catch (error) {
-        console.error(error);
         res.status(500).json({ message: 'Failed to save contact message. Please try again later.' });
     }
 });

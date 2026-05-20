@@ -25,7 +25,6 @@ async function authenticate(req, res, next) {
         req.user = decoded;
         next();
     } catch (error) {
-        console.error('JWT verification failed for /trips:', error.message);
         return res.status(403).json({ message: `Failed to authenticate token: ${error.message}` });
     }
 }

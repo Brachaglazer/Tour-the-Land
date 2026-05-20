@@ -1,5 +1,43 @@
 const apiBase = "";
 
+async function clearAllReviews() {
+    if (!confirm('Are you sure you want to delete ALL reviews? This cannot be undone.')) return;
+    try {
+        const token = getAuthToken();
+        if (!token) {
+            alert('Not logged in. Please sign in and try again.');
+            return;
+        }
+
+        const response = await fetch(`${apiBase}/reviews/deleteAll`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const text = await response.text();
+        let data;
+        try {
+            data = JSON.parse(text || '{}');
+        } catch (e) {
+            data = { message: text };
+        }
+
+        if (!response.ok) {
+            const msg = data?.message || `${response.status} ${response.statusText}`;
+            alert('Failed to clear reviews: ' + msg + '\n\nHint: make sure you are logged in with a valid account.');
+            return;
+        }
+
+        alert(data.message || `Deleted ${data.deletedCount || 0} reviews`);
+        location.reload();
+    } catch (error) {
+        alert('Failed to clear reviews: ' + (error?.message || String(error)));
+    }
+}
+
 function getAuthToken() {
     return localStorage.getItem('jwtToken');
 }

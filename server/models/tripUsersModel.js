@@ -8,7 +8,6 @@ invited_by: objectId
 created_at: date
 */
 
-// TODO: create enum for role
 const { MongoClient } = require("mongodb");
 
 async function run() {
@@ -23,10 +22,6 @@ const uri = "mongodb+srv://tourtheland43_db_user:tourtheland@cluster0.gmd21v4.mo
 
   const database = client.db(dbName);
   const collection = database.collection(collectionName);
-
-  /*
-   *  *** INSERT TRIP USERS ***
-   */
 
   const trip_users = [
     {
@@ -47,9 +42,8 @@ const uri = "mongodb+srv://tourtheland43_db_user:tourtheland@cluster0.gmd21v4.mo
 
   try {
     const insertManyResult = await collection.insertMany(trip_users);
-    console.log(`${insertManyResult.insertedCount} trip users successfully inserted.\n`);
   } catch (err) {
-    console.error(`Something went wrong trying to insert the new trip users: ${err}\n`);
+    // Silently fail
   }
 
   await client.close();

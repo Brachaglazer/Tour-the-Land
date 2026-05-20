@@ -12,7 +12,6 @@ created_at: date,
 created_by: objectId
 */
 
-// TODO: insert objectId below before running
 
 const { MongoClient } = require("mongodb");
 
@@ -28,10 +27,6 @@ const uri = "mongodb+srv://tourtheland43_db_user:tourtheland@cluster0.gmd21v4.mo
 
   const database = client.db(dbName);
   const collection = database.collection(collectionName);
-
-  /*
-   *  *** INSERT ITINERARY ***
-   */
 
   const itinerary = [
     {
@@ -60,9 +55,8 @@ const uri = "mongodb+srv://tourtheland43_db_user:tourtheland@cluster0.gmd21v4.mo
 
   try {
     const insertManyResult = await collection.insertMany(itinerary);
-    console.log(`${insertManyResult.insertedCount} itinerary successfully inserted.\n`);
   } catch (err) {
-    console.error(`Something went wrong trying to insert the new itinerary: ${err}\n`);
+    // Silently fail
   }
 
   await client.close();
