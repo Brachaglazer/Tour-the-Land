@@ -534,6 +534,15 @@ h2 {
     font-size: 0.95rem;
 }
 
+.trip-edit-form textarea,
+.trip-edit-form input:last-of-type {
+    margin-bottom: 1.25rem;
+}
+
+.trip-edit-form button {
+    margin-top: 0.75rem;
+}
+
 .activity-form label,
 .modal-row label {
     display: block;
