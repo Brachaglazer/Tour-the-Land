@@ -21,10 +21,6 @@ const uri = "mongodb+srv://tourtheland43_db_user:tourtheland@cluster0.gmd21v4.mo
   const database = client.db(dbName);
   const collection = database.collection(collectionName);
 
-  /*
-   *  *** INSERT CONTACTS ***
-   */
-
   const contacts = [
     {
       name: "Devorah",
@@ -42,9 +38,8 @@ const uri = "mongodb+srv://tourtheland43_db_user:tourtheland@cluster0.gmd21v4.mo
 
   try {
     const insertManyResult = await collection.insertMany(contacts);
-    console.log(`${insertManyResult.insertedCount} contacts successfully inserted.\n`);
   } catch (err) {
-    console.error(`Something went wrong trying to insert the new contacts: ${err}\n`);
+    // catch without logging here to avoid info leak
   }
 
   await client.close();

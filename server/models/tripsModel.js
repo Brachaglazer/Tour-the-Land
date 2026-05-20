@@ -10,7 +10,6 @@ created_at: date,
 updated_at: date
 */
 
-// TODO: insert objectId, start_date, and end_date below before running
 
 const { MongoClient } = require("mongodb");
 
@@ -26,10 +25,6 @@ const uri = "mongodb+srv://tourtheland43_db_user:tourtheland@cluster0.gmd21v4.mo
 
   const database = client.db(dbName);
   const collection = database.collection(collectionName);
-
-  /*
-   *  *** INSERT TRIPS ***
-   */
 
   const trips = [
     {
@@ -54,9 +49,8 @@ const uri = "mongodb+srv://tourtheland43_db_user:tourtheland@cluster0.gmd21v4.mo
 
   try {
     const insertManyResult = await collection.insertMany(trips);
-    console.log(`${insertManyResult.insertedCount} trips successfully inserted.\n`);
   } catch (err) {
-    console.error(`Something went wrong trying to insert the new trips: ${err}\n`);
+    // Silently fail
   }
 
   await client.close();

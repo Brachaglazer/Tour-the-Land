@@ -1,7 +1,3 @@
-/*
-Seed script for Users collection (ESM).
-This script will create sample users with bcrypt-hashed passwords.
-*/
 import { MongoClient } from 'mongodb';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
@@ -27,7 +23,7 @@ async function run() {
   const collection = db.collection('users');
 
   const users = [
-    { first_name: 'Devora', last_name: 'Teitelbaum', email: 'dteitelb@student.touro.edu', password: 'devora123' },
+    { first_name: 'Devorah', last_name: 'Teitelbaum', email: 'dteitelb@student.touro.edu', password: 'devora123' },
     { first_name: 'Bracha', last_name: 'Glazer', email: 'bglazer@student.touro.edu', password: 'bracha123' }
   ];
 

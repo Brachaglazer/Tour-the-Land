@@ -22,7 +22,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await loadComponent("navbar", "/components/navbar.html");
 
-    // give browser 1 tick to render injected HTML
     setTimeout(() => {
         initMenu();
         if (window.updateAuthUI) {

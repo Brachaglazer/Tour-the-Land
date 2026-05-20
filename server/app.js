@@ -21,7 +21,7 @@ app.use(cors());
 app.use(express.json());
 
 if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.warn("Warning: EMAIL_USER or EMAIL_PASS is not configured in the loaded .env file.");
+    // Email configuration not loaded
 }
 
 app.use(express.static(path.join(__dirname, "../public")));
@@ -46,5 +46,5 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`server running on port ${PORT}`);
 });
