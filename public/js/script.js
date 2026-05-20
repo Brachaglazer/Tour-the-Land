@@ -173,7 +173,7 @@ function loginUser() {
     const userData = {
         email: document.getElementById('email').value,
         password: document.getElementById('password').value
-    };
+    }; 
 
     const responseBox = document.getElementById('response-message');
 
@@ -872,10 +872,23 @@ function downloadTrip(tripId) {
     const trip = getTripById(tripId);
     if (!trip) return;
 
-    const blob = new Blob([JSON.stringify(trip, null, 2)], { type: 'application/json' });
+    const header = `Trip Itinerary: ${trip.title}\n`;
+    const dates = `Dates: ${formatTripDate(trip.start_date) || 'TBD'} - ${formatTripDate(trip.end_date) || 'TBD'}\n\n`;
+    const description = trip.description ? `Description:\n${trip.description.trim()}\n\n` : '';
+    const activities = Array.isArray(trip.activities) && trip.activities.length
+        ? trip.activities.map((activity, idx) => {
+            const activityTime = activity.time ? `${activity.time.trim()} - ` : '';
+            const activityTitle = activity.title?.trim() || 'Untitled activity';
+            const activityDesc = activity.description ? `\n    ${activity.description.trim()}` : '';
+            return `${idx + 1}. ${activityTime}${activityTitle}${activityDesc}`;
+        }).join('\n\n') + '\n'
+        : 'No activities planned yet.\n';
+
+    const content = `${header}${dates}${description}${activities}`;
+    const blob = new Blob([content], { type: 'text/plain' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `${trip.title.replace(/\s+/g, '_')}_trip.json`;
+    link.download = `${trip.title.replace(/\s+/g, '_')}_itinerary.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1009,6 +1022,19 @@ function saveActivity(tripId, activityId) {
         return;
     }
 
+    const existingTrip = getTripById(tripId);
+    const originalActivity = existingTrip?.activities?.find(item => item.activityId === activityId);
+    const originalTitle = originalActivity?.title?.trim() || '';
+    const originalTime = originalActivity?.time?.trim() || '';
+    const originalDescription = originalActivity?.description?.trim() || '';
+
+    if (title === originalTitle && time === originalTime && description === originalDescription) {
+        feedback.style.display = 'block';
+        feedback.className = 'activity-feedback error';
+        feedback.innerText = 'Must change before saving';
+        return;
+    }
+
     fetch(`${apiBase}/trips/updateActivity/${tripId}/${activityId}`, {
         method: 'PATCH',
         headers: {
@@ -1129,7 +1155,7 @@ function reviewSuggestions() {
                 return;
             }
 
-            reviewSuggestions.innerHTML = '<p id=".suggestTitle">Back from your trip? Let us know how it was!</p>';
+            reviewSuggestions.innerHTML = '<p class="suggestTitle">Back from your trip? Let us know how it was!</p>';
             reviewSuggestions.innerHTML += trips.map((trip, index) => `
                 <article class="trip-card" style="animation-delay: ${index * 0.08}s;">
                     <div class="trip-meta">

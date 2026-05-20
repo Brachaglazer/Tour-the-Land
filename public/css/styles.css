@@ -519,14 +519,12 @@ h2 {
     margin-top: 1rem;
 }
 
-.activity-form label {
-    display: block;
-    margin-top: 1rem;
-    color: #3f5e67;
-}
-
+.trip-edit-form input,
+.trip-edit-form textarea,
 .activity-form input,
-.activity-form textarea {
+.activity-form textarea,
+.modal-row input,
+.modal-row select {
     width: 100%;
     margin-top: 0.45rem;
     padding: 0.95rem 1rem;
@@ -534,6 +532,28 @@ h2 {
     border: 1px solid rgba(120,160,150,0.35);
     background: #f7fbfa;
     font-size: 0.95rem;
+}
+
+.trip-edit-form textarea,
+.trip-edit-form input:last-of-type {
+    margin-bottom: 1.25rem;
+}
+
+.trip-edit-form button {
+    margin-top: 0.75rem;
+}
+
+.activity-form label,
+.modal-row label {
+    display: block;
+    margin-top: 1rem;
+    color: #3f5e67;
+}
+
+.activity-form label {
+    display: block;
+    margin-top: 1rem;
+    color: #3f5e67;
 }
 
 .activity-form textarea {
@@ -747,6 +767,8 @@ h2 {
     color: #4f6b7a;
     font-size: 1rem;
     line-height: 1.7;
+    text-align: center;
+    max-width: 760px;
 }
 
 @keyframes slideIn {
