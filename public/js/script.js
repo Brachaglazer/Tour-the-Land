@@ -1009,6 +1009,19 @@ function saveActivity(tripId, activityId) {
         return;
     }
 
+    const existingTrip = getTripById(tripId);
+    const originalActivity = existingTrip?.activities?.find(item => item.activityId === activityId);
+    const originalTitle = originalActivity?.title?.trim() || '';
+    const originalTime = originalActivity?.time?.trim() || '';
+    const originalDescription = originalActivity?.description?.trim() || '';
+
+    if (title === originalTitle && time === originalTime && description === originalDescription) {
+        feedback.style.display = 'block';
+        feedback.className = 'activity-feedback error';
+        feedback.innerText = 'Must change before saving';
+        return;
+    }
+
     fetch(`${apiBase}/trips/updateActivity/${tripId}/${activityId}`, {
         method: 'PATCH',
         headers: {
@@ -1129,7 +1142,7 @@ function reviewSuggestions() {
                 return;
             }
 
-            reviewSuggestions.innerHTML = '<p id=".suggestTitle">Back from your trip? Let us know how it was!</p>';
+            reviewSuggestions.innerHTML = '<p class="suggestTitle">Back from your trip? Let us know how it was!</p>';
             reviewSuggestions.innerHTML += trips.map((trip, index) => `
                 <article class="trip-card" style="animation-delay: ${index * 0.08}s;">
                     <div class="trip-meta">
